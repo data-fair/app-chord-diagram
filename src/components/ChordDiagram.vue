@@ -3,17 +3,22 @@
   <div id="diagram">
     <div id="displayDiagram">
       <h2>Diagramme Chord</h2>
-      <!--svg id="svgChord2" width="1200" height="1200"-->
-      <svg id="svgChord2" width="1200" height="1200" :transform="test(testInput)">
-        <g id="gChord2" transform="translate(600, 600)">
+      <svg id="svgChord2" width="1300" height="1300" :transform="changeRotation(rangeInput)">
+        <g id="gChord2" transform="translate(650, 650)">
           
           <g id="gRibbons2">
             <g  v-for="ribbon in ribbonList" :key="ribbon.ribbonId">
                 <path
                 :d="ribbon.ribbonPath"
                 :fill="ribbon.ribbonColor"
-                @mouseover="ribbon.ribbonMouseHover = true, oneRibbonHover=true, ribbonHoverByMouse = ribbon.mouseOverRibbon, displayElementsInfo(ribbonHoverByMouse, arcHoverByMouse)"
-                @mouseleave="ribbon.ribbonMouseHover = false, oneRibbonHover=false, ribbonHoverByMouse = -1"
+                @mouseover="ribbon.ribbonMouseHover = true, 
+                  oneRibbonHover=true, 
+                  ribbonHoverByMouse = ribbon.mouseOverRibbon, 
+                  displayElementsInfo(ribbonHoverByMouse, arcHoverByMouse)"
+                @mouseleave="ribbon.ribbonMouseHover = false, 
+                  oneRibbonHover=false, 
+                  ribbonHoverByMouse = -1,
+                  removeInfo()"
                 :class="[{ activeRibbon: ribbon.ribbonMouseHover }, 
                   {inactiveRibbons: oneRibbonHover}, 
                   {activeRibbonByArc: MouseOverArcActive(arcHoverByMouse, ribbon.arcsByRibbon)},
@@ -27,8 +32,13 @@
                 <path
                 :d="arc.arcPath"
                 :fill="arc.arcColor"
-                @mouseover="arc.arcMouseHover = true, oneArcHover=true, arcHoverByMouse=arc.mouseOverArc, displayElementsInfo(ribbonHoverByMouse, arcHoverByMouse)"
-                @mouseleave="arc.arcMouseHover = false, oneArcHover=false, arcHoverByMouse=-1"
+                @mouseover="arc.arcMouseHover = true, 
+                  oneArcHover=true, arcHoverByMouse=arc.mouseOverArc, 
+                  displayElementsInfo(ribbonHoverByMouse, arcHoverByMouse)"
+                @mouseleave="arc.arcMouseHover = false, 
+                  oneArcHover=false, 
+                  arcHoverByMouse=-1,
+                  removeInfo()"
                 :class="[{ activeArc: arc.arcMouseHover }, 
                   {inactiveArcs: oneArcHover},]" />
             </g>
@@ -45,23 +55,28 @@
 
         </g>
       </svg>
-      <input id="getInputRange" type="range" min="0" max="360" step="1" v-model="testInput">
-      <br/>
-      <input v-model="testInput" type="number">
-      <p>{{ testInput }}</p>
+      <div>
+        <input id="getInputRange" type="range" min="0" max="360" step="1" v-model="rangeInput">
+        <br/>
+        <input v-model="rangeInput" type="number">
+      </div>
     </div>
 
     <div id="diagramInfo">
-      <h2>Informations éléments</h2>
-      <p>{{displayElementsInfo(ribbonHoverByMouse, arcHoverByMouse)[0]}}</p>
-      <p>{{displayElementsInfo(ribbonHoverByMouse, arcHoverByMouse)[1]}}</p>
+      <div id="info">
+        <h2>Informations éléments</h2>
+        <div v-for="info in infoList" :key="info.id" :id="info.idInfo">
+          <text>{{ info.listInfo }}</text>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 
-import * as d3 from 'd3'
+import * as d3c from 'd3-chord'
+import * as d3s from 'd3-shape'
 import { ref } from 'vue'
 import { dataMatrix } from './AxiosRequest.vue';
 
@@ -113,7 +128,7 @@ const arcsPostionsList = calculateArc(matrix)
 let arcsPathsList = [];
 function buildArcsPaths(arcsPostionsList){
   for (let i=0; i<arcsPostionsList.length; i++) {
-    arcsPathsList.push(d3.arc()({
+    arcsPathsList.push(d3s.arc()({
         innerRadius: innerRadius-2,
         outerRadius: outerRadius,
         startAngle: arcsPostionsList[i][0],
@@ -190,7 +205,7 @@ const dejaVu = []
           if ((ribbons[i][j][1][1]-ribbons[i][j][1][0]) >= (ribbons[j][i][1][1]-ribbons[j][i][1][0])) {
             indexColorRibbon.push(i)
           } else {indexColorRibbon.push(j)}
-          ribbonsPathsList.push(d3.ribbon()({
+          ribbonsPathsList.push(d3c.ribbon()({
             source: {startAngle: ribbons[i][j][1][0], endAngle: ribbons[i][j][1][1], radius: innerRadius},
             target: {startAngle: ribbons[j][i][1][0], endAngle: ribbons[j][i][1][1], radius: innerRadius}
           }))
@@ -284,30 +299,51 @@ const arcsValuesList = []
       arcValue = 0
   });
 
+
 let ribbonHoverByMouse = -1
+
+let infoList = ref([])
+
 function displayElementsInfo(idRibbon, idArc) {
-  if (idRibbon > -1) {
+  infoList = ref([])
+  const elementInfo = []
+  if (idRibbon > -1){
     const arcs = arcsForRibbons[idRibbon]
     const ribbonInfo1 = arcsNamesList[arcs[0]] + " → " + arcsNamesList[arcs[1]] + ": " + matrix[arcs[0]][arcs[1]]
     let ribbonInfo2 = ""
     if (arcs[0] != arcs[1]) {
       ribbonInfo2 = arcsNamesList[arcs[1]] + " → " + arcsNamesList[arcs[0]] + ": " + matrix[arcs[1]][arcs[0]]}
-    return([ribbonInfo1, ribbonInfo2])
+    elementInfo.push(ribbonInfo1, ribbonInfo2)
   }
-  else if (idArc > -1) {
-    const arcInfo = arcsNamesList[idArc] + ": " + arcsValuesList[idArc]
-    return ([arcInfo, ""])
+  else if(idArc > -1){
+    elementInfo.push(arcsNamesList[idArc] + ": " + arcsValuesList[idArc])
+    for (let i=0; i<arcsNamesList.length; i++) {
+      elementInfo.push(" - " + arcsNamesList[idArc] + " → " + arcsNamesList[i] + ": " + matrix[idArc][i])
+    }
   }
-  else{return (["", ""])}
+  let infoId = 0
+
+  for(let i=0; i<elementInfo.length; i++) {
+    infoList.value.push({
+      id: infoId++,
+      idInfo: "info"+infoId,
+      listInfo: elementInfo[i]
+    })
+  }
+}
+
+
+function removeInfo() {
+  infoList = ref([])
 }
 
 
 // Rotation du Diagramme ==========================================================================
 
-const testInput = ref(0)
-function test(testInput) {
-  const testRotate = "rotate("+ testInput + ")"
-  return testRotate
+const rangeInput = ref(0)
+function changeRotation(rangeInput) {
+  const newRotation = "rotate("+ rangeInput + ")"
+  return newRotation
 }
 
 
@@ -361,6 +397,10 @@ function test(testInput) {
 
 input[type="range"] {
   width:360px;
+}
+
+#info{
+  margin-top: 300px;
 }
 
 

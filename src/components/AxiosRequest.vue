@@ -83,7 +83,6 @@ function listeRegion(dataValues) {
 
   globalData = await axiosData()
 
-  //const dataMatrix = createMatrix(globalData)
   const datasTest = createMatrix(globalData)
   const dataRegion = listeRegion(globalData)
   
