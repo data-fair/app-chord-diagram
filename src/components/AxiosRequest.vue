@@ -1,27 +1,5 @@
 <script>
-//<script setup>
 import axios from 'axios';
-//import { ref } from 'vue'
-
-
-/*axios({
-  method: 'get',
-  url: '/lines',
-  baseURL: 'https://opendata.koumoul.com/data-fair/api/v1/datasets/vitesses-pratiquees-issues-des-voitures-radars-a-conduite-externalisee',
-  params: {
-    sort: 'mesure'
-  },
-})
-  .then(function (response) {
-    console.log(response.data.results[0].limite);
-  })
-  .catch(function (error) {
-    console.log(error);
-  })
-  .finally(function () {
-    // always executed
-  });*/
-
 
 //---------------------------------------------------------
 
@@ -51,7 +29,6 @@ function createMatrix(dataValues) {
     })
     newMatrix.push(newRow)
   }
-  //console.log(newMatrix)
   return newMatrix
 }
 
@@ -64,14 +41,11 @@ function listeRegion(dataValues) {
 }
 
 
-
-  //const tableDonneesA = ref(null)
   const url = 'https://koumoul.com/data-fair/api/v1/datasets/fichier-personnes-decedees/values_agg?field=nom_actuel_region_naissance;nom_actuel_region_deces'
 
   let data
   let globalData
   const axiosData = async () => {
-    //let data
     try {
       data = await axios.get(url);
     }
@@ -98,34 +72,6 @@ function listeRegion(dataValues) {
     }
   }
 
-
-  //console.log("Axios:")
-
-  //console.log("1:")
-
-  /*const axiosData = axios.get('https://koumoul.com/data-fair/api/v1/datasets/fichier-personnes-decedees/values_agg?field=nom_actuel_region_naissance;nom_actuel_region_deces', {})
-  .then(function (response) {
-    //console.log(response)
-    tableDonneesA.value = response.data.aggs[0]
-    console.log("2:")
-    console.log(tableDonneesA)
-    return tableDonneesA.value
-  })
-  .catch(function (error) {
-    console.log(error);
-  })
-  .finally(function () {
-    const test = createMatrix(tableDonneesA.value)
-    console.log(test)
-    // always executed
-  });
-  
-  //console.log(axiosData.then())
-  /*console.log("3:")
-  console.log(tableDonneesA)*/
-
-
-
 //---------------------------------------------------------
 
 
@@ -135,7 +81,6 @@ function listeRegion(dataValues) {
 <template>
   <div>
     <h1>Test requêtes Axios:</h1>
-    <!--pre>{{globalData}}</pre-->
   </div>
 </template>
 
