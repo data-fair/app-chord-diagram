@@ -1,10 +1,1 @@
-{
-  "datasets": [
-    {
-      "id": "subventions-directes-attribuees-aux-associations-ville-de-poitiers",
-      "href": "http://localhost:5888/data-fair/api/v1/datasets/subventions-directes-attribuees-aux-associations-ville-de-poitiers",
-      "title": "Subventions directes attribuées aux associations ville de Poitiers",
-      "page": "http://localhost:5888/data-fair/dataset/subventions-directes-attribuees-aux-associations-ville-de-poitiers"
-    }
-  ]
-}
+{}

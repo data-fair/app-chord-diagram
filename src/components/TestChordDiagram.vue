@@ -1,47 +1,85 @@
 <template>
-  <div>
-    <h1>D3 Chord Diagram</h1>
-    <svg id="svgChord2" width="1200" height="1200">
-      <g id="gChord2" transform="translate(600, 600)">
-        
-        <g id="gRibbons2">
-          <g  v-for="ribbon in ribbonList" :key="ribbon.ribbonId" >
-              <path
-              :d="ribbon.ribbonPath"
-              :fill="ribbon.ribbonColor"
-              @mouseover="hover = true"
-              @mouseleave="hover = false"
-              :class="{ active: hover }" />
+  <h1 title="Test">D3 Chord Diagram</h1>
+  <div id="diagram">
+    <div id="displayDiagram">
+      <h2>Diagramme Chord</h2>
+      <svg id="svgChord2" width="1300" height="1300" :transform="changeRotation(rangeInput)">
+        <g id="gChord2" transform="translate(650, 650)">
+          
+          <g id="gRibbons2">
+            <g  v-for="ribbon in ribbonList" :key="ribbon.ribbonId">
+                <path
+                :d="ribbon.ribbonPath"
+                :fill="ribbon.ribbonColor"
+                @mouseover="ribbon.ribbonMouseHover = true, 
+                  oneRibbonHover=true, 
+                  ribbonHoverByMouse = ribbon.mouseOverRibbon, 
+                  displayElementsInfo(ribbonHoverByMouse, arcHoverByMouse)"
+                @mouseleave="ribbon.ribbonMouseHover = false, 
+                  oneRibbonHover=false, 
+                  ribbonHoverByMouse = -1,
+                  removeInfo()"
+                :class="[{ activeRibbon: ribbon.ribbonMouseHover }, 
+                  {inactiveRibbons: oneRibbonHover}, 
+                  {activeRibbonByArc: MouseOverArcActive(arcHoverByMouse, ribbon.arcsByRibbon)},
+                  {inactiveRibbonByArc: MouseOverArcInactive(arcHoverByMouse, ribbon.arcsByRibbon)}]" />
+                
+            </g>
           </g>
-        </g>
 
-        <g id="gGroups2">
-          <g  v-for="arc in arcList" :key="arc.arcId" >
-              <path
-              :d="arc.arcPath"
-              :fill="arc.arcColor"
-              class="arc" />
+          <g id="gGroups2">
+            <g  v-for="arc in arcList" :key="arc.arcId" >
+                <path
+                :d="arc.arcPath"
+                :fill="arc.arcColor"
+                @mouseover="arc.arcMouseHover = true, 
+                  oneArcHover=true, arcHoverByMouse=arc.mouseOverArc, 
+                  displayElementsInfo(ribbonHoverByMouse, arcHoverByMouse)"
+                @mouseleave="arc.arcMouseHover = false, 
+                  oneArcHover=false, 
+                  arcHoverByMouse=-1,
+                  removeInfo()"
+                :class="[{ activeArc: arc.arcMouseHover }, 
+                  {inactiveArcs: oneArcHover},]" />
+            </g>
           </g>
-        </g>
 
-        <g id="gText">
-          <g v-for="text in textList" :key="text.textId">
-            <text  :transform=text.textPos :font-size="text.textSize">{{ text.textValue }}</text>
+          <g id="gText">
+            <g v-for="text in textList" :key="text.textId">
+              <text  
+              :transform=text.textPos 
+              :font-size="text.textSize"
+              >{{ text.textValue }}</text>
+            </g>
           </g>
-        </g>
 
-      </g>
-    </svg>
+        </g>
+      </svg>
+      <div>
+        <input id="getInputRange" type="range" min="0" max="360" step="1" v-model="rangeInput">
+        <br/>
+        <input v-model="rangeInput" type="number">
+      </div>
+    </div>
+
+    <div id="diagramInfo">
+      <div id="info">
+        <h2>Informations éléments</h2>
+        <div v-for="info in infoList" :key="info.id" :id="info.idInfo">
+          <text>{{ info.listInfo }}</text>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 
-import * as d3 from 'd3'
+import * as d3c from 'd3-chord'
+import * as d3s from 'd3-shape'
 import { ref } from 'vue'
 import { dataMatrix } from './AxiosRequest.vue';
 
-const hover = ref(false)
 
 // Création Matrice ===============================================================================
 const width = 900;
@@ -49,46 +87,14 @@ const height = width;
 const outerRadius = Math.min(width, height) * 0.5 - 30;
 const innerRadius = outerRadius - 20;
 const matrix = dataMatrix[0]
-const valueList = dataMatrix[1]
-/*const matrix = [
-  [11975,  5871, 8916, 2868],
-  [ 1951, 10048, 2060, 6171],
-  [ 8010, 16145, 8090, 8045],
-  [ 1013,   990,  940, 6907]];*/
-
-/*const matrix = [
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]*/
-
-  /*const matrix = [
-    [3, 3, 3, 3],
-    [4, 4, 4, 4],
-    [5, 5, 5, 5],
-    [6, 6, 6, 6]
-  ]*/
+const arcsNamesList = dataMatrix[1]
 
 
 // Création des Arcs ==============================================================================
 
 // Fonction Calcul Début et Fin Arcs ------------------------------------- 
 
+const arcsSumValuesList = []
 function calculateArc(matrix) {
   // Calcule de la somme de toute les valeurs de la matrice
   let sumAllValues = 0;
@@ -114,37 +120,42 @@ function calculateArc(matrix) {
   }
   return(arrayArcsValues)
 }
-const arcsStartEndAngle = calculateArc(matrix)
+const arcsPostionsList = calculateArc(matrix)
 
 // Affichage Arcs --------------------------------------------------------
 
 // Création du Path des Arcs
-let arcsPathArray = [];
-for (let i=0; i<arcsStartEndAngle.length; i++) {
-  arcsPathArray.push(d3.arc()({
-      innerRadius: innerRadius-2,
-      outerRadius: outerRadius,
-      startAngle: arcsStartEndAngle[i][0],
-      endAngle: arcsStartEndAngle[i][1]
-  }))
+let arcsPathsList = [];
+function buildArcsPaths(arcsPostionsList){
+  for (let i=0; i<arcsPostionsList.length; i++) {
+    arcsPathsList.push(d3s.arc()({
+        innerRadius: innerRadius-2,
+        outerRadius: outerRadius,
+        startAngle: arcsPostionsList[i][0],
+        endAngle: arcsPostionsList[i][1]
+    }))
+  }
 }
+buildArcsPaths(arcsPostionsList)
 
 
 // Affichage Arcs avec v-for
 const arcList = ref([])
-//const color = ['#d43333', '#3353d4', '#d4b933', '#33d435', '#d9d9d9', '#d48633', '#f266d4', '#525252']#4d226e
-const color = ['#44206e', '#acdb56', '#173799', '#e6f728', '#2a9c78']
+const color = ['#48118a', '#d60d06', '#0d309e', '#1a1a1a', '#0b996c']
 let arcId = 0
-function addArc(arcsPathArray) {
-  for(let i=0; i<arcsPathArray.length; i++) {
+function addArc(arcsPathsList) {
+  for(let i=0; i<arcsPathsList.length; i++) {
       arcList.value.push({ 
         id: arcId++, 
-        arcPath: arcsPathArray[i], 
-        arcColor: color[(arcId-1)%5]
+        arcPath: arcsPathsList[i], 
+        arcColor: color[(arcId-1)%5],
+        arcMouseHover: ref(false),
+        mouseOverArc: i,
+        arcTitle: arcsNamesList[i] + ': ' + arcsSumValuesList[i]
       })
   }
 }
-addArc(arcsPathArray)
+addArc(arcsPathsList)
 
 
 // Création des Rubans ============================================================================
@@ -181,43 +192,46 @@ function calculateRibbon(matrix) {
 const ribbons = calculateRibbon(matrix)
 
 
-let ribbonsPathArray = [];
-let dejaVu = []
+let ribbonsPathsList = []
+let arcsForRibbons = []
 let indexColorRibbon = []
-for (let i=0; i<ribbons.length; i++) {
-  for (let j=0; j<ribbons[i].length; j++) {
-      if (!(dejaVu.includes(j))) {
-        // max entre end-start(source) et end-start(target)
-        if ((ribbons[i][j][1][1]-ribbons[i][j][1][0]) >= (ribbons[j][i][1][1]-ribbons[j][i][1][0])) {
-          indexColorRibbon.push(i)
-        } else {indexColorRibbon.push(j)}
-        // source: i / target: j -> k
-        // k%8 = color
-        ribbonsPathArray.push(d3.ribbon()({
-          source: {startAngle: ribbons[i][j][1][0], endAngle: ribbons[i][j][1][1], radius: innerRadius},
-          target: {startAngle: ribbons[j][i][1][0], endAngle: ribbons[j][i][1][1], radius: innerRadius}
-        }))
-      }
+function buildRibbonsPaths() {
+const dejaVu = []
+  for (let i=0; i<ribbons.length; i++) {
+    for (let j=0; j<ribbons[i].length; j++) {
+        if (!(dejaVu.includes(j))) {
+          arcsForRibbons.push([i, j])
+          // max entre end-start(source) et end-start(target)
+          if ((ribbons[i][j][1][1]-ribbons[i][j][1][0]) >= (ribbons[j][i][1][1]-ribbons[j][i][1][0])) {
+            indexColorRibbon.push(i)
+          } else {indexColorRibbon.push(j)}
+          ribbonsPathsList.push(d3c.ribbon()({
+            source: {startAngle: ribbons[i][j][1][0], endAngle: ribbons[i][j][1][1], radius: innerRadius},
+            target: {startAngle: ribbons[j][i][1][0], endAngle: ribbons[j][i][1][1], radius: innerRadius}
+          }))
+        }
+    }
+    dejaVu.push(i)
   }
-  dejaVu.push(i)
 }
-console.log(indexColorRibbon)
-
-
+buildRibbonsPaths()
 
 // Affichage Rubans avec v-for
 const ribbonList = ref([])
 let ribbonId = 0
-function addRibbon(ribbonsPathArray) {
-  for(let i=0; i<ribbonsPathArray.length; i++) {
+function addRibbon(ribbonsPathsList) {
+  for(let i=0; i<ribbonsPathsList.length; i++) {
       ribbonList.value.push({ 
         id: ribbonId++, 
-        ribbonPath: ribbonsPathArray[i], 
-        ribbonColor: color[indexColorRibbon[i]%5]
+        ribbonPath: ribbonsPathsList[i], 
+        ribbonColor: color[indexColorRibbon[i]%5],
+        ribbonMouseHover: ref(false),
+        arcsByRibbon: arcsForRibbons[i],
+        mouseOverRibbon: i
       })
   }
 }
-addRibbon(ribbonsPathArray)
+addRibbon(ribbonsPathsList)
 
 
 // Création des Balises Texte =====================================================================
@@ -235,7 +249,7 @@ function createText(textValue) {
   }
   return textPercent
 }
-const textsPosition = createText(arcsStartEndAngle)
+const textsPosition = createText(arcsPostionsList)
 
 const textList = ref([])
 let textId = 0
@@ -243,12 +257,12 @@ function addText(textsPosition) {
   for(let i=0; i<textsPosition.length; i++) {
     const rotate = textsPosition[i]+270.8
     let fontSize = "16px"
-    if (valueList[i] == "") {valueList[i] = "Autre"}
-    if ((rotate-(textsPosition[i-1]+270.8)) < 2) {/*valueList[i] = "-";*/ fontSize="9px"}
+    if (arcsNamesList[i] == "") {arcsNamesList[i] = "Autre"}
+    if ((rotate-(textsPosition[i-1]+270.8)) < 2) {fontSize="9px"}
     textList.value.push({ 
       id: textId++, 
       textPos: "rotate("+rotate+")translate("+(430)+","+(0)+")", 
-      textValue: valueList[i], 
+      textValue: arcsNamesList[i], 
       textSize: fontSize
     })
   }
@@ -256,12 +270,81 @@ function addText(textsPosition) {
 addText(textsPosition)
 
 
-/*
-Mouse :Over
-Ruban: Les Rubans non sélectionné voient leurs opacité réduite, les Arcs ne changent pas
-Arc: Les Arcs non sélectionné voient leurs opacité réduite, les Ruban n'appartenant pas à l'Arc sélectionné voient leurs opacité réduite
-*/
+// Mise en évidences des Arcs et Rubans ===========================================================
 
+let arcHoverByMouse = -1
+const oneRibbonHover = ref(false)
+const oneArcHover = ref(false)
+
+function MouseOverArcActive(arcHoverByMouse, valRibbon) {
+  if (valRibbon.includes(arcHoverByMouse)) {
+    return true
+  }else {return false}
+}
+
+function MouseOverArcInactive(arcHoverByMouse, valRibbon) {
+  if (arcHoverByMouse != -1 && !(valRibbon.includes(arcHoverByMouse))) {
+      return true
+  }else {return false}
+}
+
+
+// Affichage Informations Eléments ================================================================
+
+const arcsValuesList = []
+  let arcValue = 0;
+  matrix.forEach(rows => {
+      rows.forEach((column) => arcValue += column)
+      arcsValuesList.push(arcValue)
+      arcValue = 0
+  });
+
+
+let ribbonHoverByMouse = -1
+
+let infoList = ref([])
+
+function displayElementsInfo(idRibbon, idArc) {
+  infoList = ref([])
+  const elementInfo = []
+  if (idRibbon > -1){
+    const arcs = arcsForRibbons[idRibbon]
+    const ribbonInfo1 = arcsNamesList[arcs[0]] + " → " + arcsNamesList[arcs[1]] + ": " + matrix[arcs[0]][arcs[1]]
+    let ribbonInfo2 = ""
+    if (arcs[0] != arcs[1]) {
+      ribbonInfo2 = arcsNamesList[arcs[1]] + " → " + arcsNamesList[arcs[0]] + ": " + matrix[arcs[1]][arcs[0]]}
+    elementInfo.push(ribbonInfo1, ribbonInfo2)
+  }
+  else if(idArc > -1){
+    elementInfo.push(arcsNamesList[idArc] + ": " + arcsValuesList[idArc])
+    for (let i=0; i<arcsNamesList.length; i++) {
+      elementInfo.push(" - " + arcsNamesList[idArc] + " → " + arcsNamesList[i] + ": " + matrix[idArc][i])
+    }
+  }
+  let infoId = 0
+
+  for(let i=0; i<elementInfo.length; i++) {
+    infoList.value.push({
+      id: infoId++,
+      idInfo: "info"+infoId,
+      listInfo: elementInfo[i]
+    })
+  }
+}
+
+
+function removeInfo() {
+  infoList = ref([])
+}
+
+
+// Rotation du Diagramme ==========================================================================
+
+const rangeInput = ref(0)
+function changeRotation(rangeInput) {
+  const newRotation = "rotate("+ rangeInput + ")"
+  return newRotation
+}
 
 
 </script>
@@ -270,14 +353,55 @@ Arc: Les Arcs non sélectionné voient leurs opacité réduite, les Ruban n'appa
 <style>
 
 #gRibbons2{
-  fill-opacity: 0.5;
+  fill-opacity: 0.6;
 }
-.active {
-  fill-opacity: 0.7;
+.inactiveRibbons{
+  fill-opacity: 0.15;
 }
+.activeRibbon{
+  fill-opacity: 0.8;
+}
+
 
 #gGroups2{
   fill-opacity: 1;
 }
+.inactiveArcs{
+  fill-opacity: 0.3;
+}
+.activeArc{
+  fill-opacity: 1;
+}
+
+.inactiveRibbonByArc{
+  fill-opacity: 0.15;
+}
+.activeRibbonByArc{
+  fill-opacity: 0.8;
+}
+
+
+#diagram{
+  display: flex;
+  flex-direction: row;
+}
+#displayDiagram{
+  background-color: #fff0f0;
+  padding: 10px;
+}
+#diagramInfo{
+  background-color: #d9e2ff;
+  padding: 10px;
+  width: auto;
+}
+
+input[type="range"] {
+  width:360px;
+}
+
+#info{
+  margin-top: 300px;
+}
+
 
 </style>
