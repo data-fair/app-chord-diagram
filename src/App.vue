@@ -6,8 +6,6 @@ import ChordDiagram from './components/ChordDiagram.vue';
 
   <header>
       <ChordDiagram />
-
-
   </header>
 
   <main>
