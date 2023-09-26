@@ -169,10 +169,10 @@ function calculateRibbon(matrix) {
       rows.forEach((column) => sumAllValues += column)
   });
   // Calcule la taille des rubans
-  let newRibbonStartAngle = 0; // startAngle pour chaque ruban
-  let arrayRibbonsValues = []; // tables où seront enregistré start/endAngle de chaque ruban
-  const sizeCircle = (32/31) * sumAllValues; // taille du cercle complet
-  const ribbonPadSize = (Math.PI*(1/16))/matrix.length; // écart entre chaque groupe de rubans
+  let newRibbonStartAngle = 0;
+  let arrayRibbonsValues = [];
+  const sizeCircle = (32/31) * sumAllValues;
+  const ribbonPadSize = (Math.PI*(1/16))/matrix.length;
 
   for(let row = 0; row<matrix.length; row++){
       let rowMatrix = []
@@ -201,7 +201,6 @@ const dejaVu = []
     for (let j=0; j<ribbons[i].length; j++) {
         if (!(dejaVu.includes(j))) {
           arcsForRibbons.push([i, j])
-          // max entre end-start(source) et end-start(target)
           if ((ribbons[i][j][1][1]-ribbons[i][j][1][0]) >= (ribbons[j][i][1][1]-ribbons[j][i][1][0])) {
             indexColorRibbon.push(i)
           } else {indexColorRibbon.push(j)}
