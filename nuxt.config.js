@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   app: {
     cdnURL: process.env.PUBLIC_URL,
     head: {
-      title: 'Dashboards'
+      title: 'App Diagramme Chord'
     }
   },
   modules: [

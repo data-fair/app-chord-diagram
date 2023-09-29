@@ -5,34 +5,38 @@
       "datasets": {
         "type": "array",
         "items": [{
-          "title": {"$ref": "#/i18n/~$locale~/dataset"},
+          "title": "Jeu de données",
           "type": "object",
-          "x-fromUrl": "api/v1/datasets?status=finalized&q={q}&owner={context.owner.type}:{context.owner.id}",
+          "x-fromUrl": "api/v1/datasets?status=finalized&field-type=integer,number&q={q}&select=id,title&owner={context.owner.type}:{context.owner.id}",
           "x-itemsProp": "results",
           "x-itemTitle": "title",
           "x-itemKey": "href",
           "properties": {
-            "id": {"type": "string"},
-            "href": {"type": "string"},
-            "title": {"type": "string"},
-            "page": {"type": "string"}
+            "href": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            }
           }
         }]
+      },  
+      "sourceField": {
+        "type": "object",
+        "title": "Source",
+        "x-fromUrl": "{datasets.0.href}/schema?calculated=false&type=string&separator=false&maxCardinality=20",
+        "x-itemTitle": "label",
+        "x-itemKey": "key"
       },
-      "field1": {
-        "type": "string",
-        "title": {"$ref": "#/i18n/~$locale~/field1"},
-        "readOnly": true
-      }
-    },
-    "i18n": {
-      "fr": {
-        "dataset": "Jeu de données",
-        "field1": "Propriété lecture seule renseignée par l'application"
-      },
-      "en": {
-        "dataset": "Dataset",
-        "field1": "Readonly property filled by the application"
+      "targetField": {
+        "type": "object",
+        "title": "Cible",
+        "x-fromUrl": "{datasets.0.href}/schema?calculated=false&type=string&separator=false&maxCardinality=20",
+        "x-itemTitle": "label",
+        "x-itemKey": "key"
       }
     }
   }
