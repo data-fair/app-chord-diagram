@@ -1,1 +1,69 @@
-{}
+{
+  "datasets": [
+    {
+      "href": "http://localhost:5888/data-fair/api/v1/datasets/fichier-personnes-decedees",
+      "title": "Fichier des personnes décédées",
+      "id": "fichier-personnes-decedees"
+    }
+  ],
+  "sourceField": {
+    "key": "nom_actuel_region_naissance",
+    "type": "string",
+    "title": "Nom actuel du région de naissance",
+    "x-capabilities": {
+      "text": false
+    },
+    "x-cardinality": 19,
+    "enum": [
+      "Île-de-France",
+      "Hauts-de-France",
+      "Auvergne-Rhône-Alpes",
+      "Grand Est",
+      "Nouvelle-Aquitaine",
+      "Occitanie",
+      "Bretagne",
+      "Normandie",
+      "Pays de la Loire",
+      "Bourgogne-Franche-Comté",
+      "Provence-Alpes-Côte d'Azur",
+      "Centre-Val de Loire",
+      "Corse",
+      "La Réunion",
+      "Martinique",
+      "Guadeloupe",
+      "Guyane",
+      "Mayotte"
+    ],
+    "label": "Nom actuel du région de naissance"
+  },
+  "targetField": {
+    "key": "nom_actuel_region_deces",
+    "type": "string",
+    "title": "Nom actuel du région de deces",
+    "x-capabilities": {
+      "text": false
+    },
+    "x-cardinality": 19,
+    "enum": [
+      "Île-de-France",
+      "Auvergne-Rhône-Alpes",
+      "Nouvelle-Aquitaine",
+      "Hauts-de-France",
+      "Grand Est",
+      "Occitanie",
+      "Provence-Alpes-Côte d'Azur",
+      "Bretagne",
+      "Normandie",
+      "Pays de la Loire",
+      "Bourgogne-Franche-Comté",
+      "Centre-Val de Loire",
+      "La Réunion",
+      "Corse",
+      "Guadeloupe",
+      "Martinique",
+      "Guyane",
+      "Mayotte"
+    ],
+    "label": "Nom actuel du région de deces"
+  }
+}

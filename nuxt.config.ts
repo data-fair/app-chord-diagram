@@ -4,14 +4,14 @@ export default defineNuxtConfig({
   app: {
     cdnURL: process.env.PUBLIC_URL,
     head: {
-      title: 'App Diagramme Chord'
+      title: 'Diagramme Chord'
     }
   },
   modules: [
     // @ts-ignore
-    //(_, nuxt) => nuxt.hooks.hook('vite:extendConfig', config => config.plugins.push(vuetify()))
+    // (_, nuxt) => nuxt.hooks.hook('vite:extendConfig', config => config.plugins.push(vuetify()))
   ],
-  //css: ['vuetify/styles'],
+  // css: ['vuetify/styles'],
   build: {
     transpile: [/@koumoul/, /@data-fair/]
   }
