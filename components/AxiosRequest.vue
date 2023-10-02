@@ -40,8 +40,16 @@ function listeRegion(dataValues) {
   return regionsList
 }
 
+  const application = window.APPLICATION
+  console.log(application)
+  const config = application.configuration
 
   const url = 'https://koumoul.com/data-fair/api/v1/datasets/fichier-personnes-decedees/values_agg?field=nom_actuel_region_naissance;nom_actuel_region_deces'
+  
+  //const field = 'values_agg?field=' + config.sourceField.key + ';' + config.targetField.key
+  //const href = {datasets.0.href}
+  //const url2 = href + field
+  //https://koumoul.com/data-fair/api/v1/datasets/(JDD à récup)/values_agg?field=(source);(target)
 
   let data
   let globalData
