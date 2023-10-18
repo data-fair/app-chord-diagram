@@ -18,7 +18,7 @@
     "nuxt": "3.5.2"
   },
   "devDependencies": {
-    "@data-fair/dev-server": "^1.11.0",
+    "@data-fair/dev-server": "^1.12.0",
     "cross-env": "^7.0.3",
     "eslint": "^8.48.0",
     "@nuxtjs/eslint-config-typescript": "^12.0.0",
