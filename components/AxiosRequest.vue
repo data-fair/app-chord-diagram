@@ -1,5 +1,6 @@
 <script>
 import axios from 'axios'
+import * as palette from 'google-palette'
 
 // ---------------------------------------------------------
 
@@ -40,16 +41,32 @@ function listeRegion (dataValues) {
   return regionsList
 }
 
-const application = window.APPLICATION
-console.log(application)
-const config = application.configuration
+const config = window.APPLICATION.configuration
 
 const url = `${config.datasets[0].href}/values_agg?field=${config.sourceField.key};${config.targetField.key}`
 
-// const field = 'values_agg?field=' + config.sourceField.key + ';' + config.targetField.key
-// const href = {datasets.0.href}
-// const url2 = href + field
-// https://koumoul.com/data-fair/api/v1/datasets/(JDD à récup)/values_agg?field=(source);(target)
+function selectPalette (preselect, nb) {
+  const colorSelection = []
+  const colorPalette = palette(preselect, nb)
+  colorPalette.forEach((color) => {
+    colorSelection.push('#' + color)
+  })
+  return colorSelection
+}
+
+function changeColor (preselect) {
+  let colorSelection = []
+  if (preselect === 'rgb') {
+    colorSelection = selectPalette('rainbow', 3)
+  } else if (preselect === 'bw') {
+    colorSelection = ['#000000', '#e3e3e3']
+  } else if (preselect === 'rainbow') {
+    colorSelection = selectPalette('rainbow', 10)
+  } else if (preselect === 'mpn65') {
+    colorSelection = selectPalette('mpn65', 10)
+  }
+  return colorSelection
+}
 
 let data
 const axiosData = async () => {
@@ -63,22 +80,18 @@ const axiosData = async () => {
 
 const globalData = await axiosData()
 
-const datasTest = createMatrix(globalData)
-const dataRegion = listeRegion(globalData)
-
-const dataMatrix = [datasTest, dataRegion]
+const dataMatrix = [createMatrix(globalData), listeRegion(globalData), changeColor(config.colors.name)]
 
 export { dataMatrix }
 
 export default {
   data () {
     return {
-      dataMatrix
+      dataMatrix,
+      testCol
     }
   }
 }
-
-// ---------------------------------------------------------
 
 </script>
 

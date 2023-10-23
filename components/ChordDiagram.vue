@@ -98,6 +98,7 @@ const outerRadius = Math.min(width, height) * 0.5 - 30
 const innerRadius = outerRadius - 20
 const matrix = dataMatrix[0]
 const arcsNamesList = dataMatrix[1]
+const colors = dataMatrix[2]
 
 // Création des Arcs ==============================================================================
 
@@ -148,14 +149,13 @@ buildArcsPaths(arcsPostionsList)
 
 // Affichage Arcs avec v-for
 const arcList = ref([])
-const color = ['#48118a', '#d60d06', '#0d309e', '#1a1a1a', '#0b996c']
 let arcId = 0
 function addArc (arcsPathsList) {
   for (let i = 0; i < arcsPathsList.length; i++) {
     arcList.value.push({
       id: arcId++,
       arcPath: arcsPathsList[i],
-      arcColor: color[(arcId - 1) % 5],
+      arcColor: colors[(arcId - 1) % colors.length],
       arcMouseHover: ref(false),
       mouseOverArc: i,
       arcTitle: arcsNamesList[i] + ': ' + arcsSumValuesList[i]
@@ -227,7 +227,7 @@ function addRibbon (ribbonsPathsList) {
     ribbonList.value.push({
       id: ribbonId++,
       ribbonPath: ribbonsPathsList[i],
-      ribbonColor: color[indexColorRibbon[i] % 5],
+      ribbonColor: colors[indexColorRibbon[i] % colors.length],
       ribbonMouseHover: ref(false),
       arcsByRibbon: arcsForRibbons[i],
       mouseOverRibbon: i

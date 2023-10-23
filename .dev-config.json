@@ -6,7 +6,7 @@
       "id": "fichier-personnes-decedees"
     }
   ],
-  "sourceField": {
+  "targetField": {
     "key": "nom_actuel_region_naissance",
     "type": "string",
     "title": "Nom actuel du région de naissance",
@@ -36,7 +36,7 @@
     ],
     "label": "Nom actuel du région de naissance"
   },
-  "targetField": {
+  "sourceField": {
     "key": "nom_actuel_region_deces",
     "type": "string",
     "title": "Nom actuel du région de deces",
@@ -65,5 +65,9 @@
       "Mayotte"
     ],
     "label": "Nom actuel du région de deces"
+  },
+  "colors": {
+    "name": "mpn65",
+    "type": "qualitative"
   }
 }
