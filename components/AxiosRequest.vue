@@ -51,19 +51,23 @@ function selectPalette (preselect, nb) {
   colorPalette.forEach((color) => {
     colorSelection.push('#' + color)
   })
+  console.log(colorPalette)
   return colorSelection
 }
 
-function changeColor (preselect) {
+function changeColor (preselect, number) {
   let colorSelection = []
   if (preselect === 'rgb') {
     colorSelection = selectPalette('rainbow', 3)
   } else if (preselect === 'bw') {
     colorSelection = ['#000000', '#e3e3e3']
   } else if (preselect === 'rainbow') {
-    colorSelection = selectPalette('rainbow', 10)
+    colorSelection = selectPalette('rainbow', number)
   } else if (preselect === 'mpn65') {
-    colorSelection = selectPalette('mpn65', 10)
+    colorSelection = selectPalette('mpn65', number)
+  } else if (preselect === 'accent') {
+    if (number > 8) { number = 8 }
+    colorSelection = selectPalette('cb-Accent', number)
   }
   return colorSelection
 }
@@ -80,7 +84,7 @@ const axiosData = async () => {
 
 const globalData = await axiosData()
 
-const dataMatrix = [createMatrix(globalData), listeRegion(globalData), changeColor(config.colors.name)]
+const dataMatrix = [createMatrix(globalData), listeRegion(globalData), changeColor(config.colors.name, config.colors.colorNumber)]
 
 export { dataMatrix }
 
