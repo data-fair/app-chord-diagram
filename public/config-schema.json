@@ -54,6 +54,7 @@
               {"const": "rgb", "title": "RGB"},
               {"const": "bw", "title": "B&W"},
               {"const": "rainbow", "title": "Rainbow"},
+              {"const": "Grayscale", "title": "Grayscale"},
               {"const": "mpn65", "title": "Miscellaneous"},
               {"const": "accent", "title": "Accent"}
             ],
@@ -61,15 +62,8 @@
             "title": "Nom de la palette de couleurs"
           },
           "colorNumber": {
-            "type": "string",
-            "oneOf": [
-              {"const": "3", "title": "3"},
-              {"const": "5", "title": "5"},
-              {"const": "6", "title": "6"},
-              {"const": "8", "title": "8"},
-              {"const": "10", "title": "10"}
-            ],
-            "default": "6",
+            "type": "integer",
+            "default": 6,
             "title": "Nombre de couleurs"
           }
         }      
