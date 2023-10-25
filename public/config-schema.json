@@ -54,7 +54,7 @@
               {"const": "rgb", "title": "RGB"},
               {"const": "bw", "title": "B&W"},
               {"const": "rainbow", "title": "Rainbow"},
-              {"const": "Grayscale", "title": "Grayscale"},
+              {"const": "grayscale", "title": "Grayscale"},
               {"const": "mpn65", "title": "Miscellaneous"},
               {"const": "accent", "title": "Accent"}
             ],
@@ -63,7 +63,6 @@
           },
           "colorNumber": {
             "type": "integer",
-            "default": 6,
             "title": "Nombre de couleurs"
           }
         }      

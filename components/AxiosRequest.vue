@@ -63,6 +63,9 @@ function changeColor (preselect, number) {
     colorSelection = ['#000000', '#e3e3e3']
   } else if (preselect === 'rainbow') {
     colorSelection = selectPalette('rainbow', number)
+  } else if (preselect === 'grayscale') {
+    if (number > 8) { number = 8 }
+    colorSelection = selectPalette('sol-base', number)
   } else if (preselect === 'mpn65') {
     colorSelection = selectPalette('mpn65', number)
   } else if (preselect === 'accent') {
