@@ -1,12 +1,9 @@
 <template>
-  <h1 title="Test">
-    D3 Chord Diagram
-  </h1>
-  <div id="diagram">
-    <div id="displayDiagram">
-      <h2>Diagramme Chord</h2>
-      <svg id="svgChord2" width="1300" height="1300" :transform="changeRotation(rangeInput)">
-        <g id="gChord2" transform="translate(650, 650)">
+  <v-row>
+    <v-spacer />
+    <v-col class="pa-1" cols="auto">
+      <svg id="svgChord2" :width="size" :height="size" :transform="changeRotation(rangeInput)">
+        <g id="gChord2" :transform="`translate(${size/2}, ${size / 2})`">
 
           <g id="gRibbons2">
             <g v-for="ribbon in ribbonList" :key="ribbon.ribbonId">
@@ -17,14 +14,13 @@
                          {inactiveRibbons: oneRibbonHover},
                          {activeRibbonByArc: MouseOverArcActive(arcHoverByMouse, ribbon.arcsByRibbon)},
                          {inactiveRibbonByArc: MouseOverArcInactive(arcHoverByMouse, ribbon.arcsByRibbon)}]"
+                @click="displayElementsInfo(ribbonHoverByMouse, arcHoverByMouse)"
                 @mouseover="ribbon.ribbonMouseHover = true,
                             oneRibbonHover=true,
-                            ribbonHoverByMouse = ribbon.mouseOverRibbon,
-                            displayElementsInfo(ribbonHoverByMouse, arcHoverByMouse)"
+                            ribbonHoverByMouse = ribbon.mouseOverRibbon"
                 @mouseleave="ribbon.ribbonMouseHover = false,
                              oneRibbonHover=false,
-                             ribbonHoverByMouse = -1,
-                             removeInfo()"
+                             ribbonHoverByMouse = -1"
               />
 
             </g>
@@ -37,13 +33,12 @@
                 :fill="arc.arcColor"
                 :class="[{ activeArc: arc.arcMouseHover },
                          {inactiveArcs: oneArcHover},]"
+                @click="displayElementsInfo(ribbonHoverByMouse, arcHoverByMouse)"
                 @mouseover="arc.arcMouseHover = true,
-                            oneArcHover=true, arcHoverByMouse=arc.mouseOverArc,
-                            displayElementsInfo(ribbonHoverByMouse, arcHoverByMouse)"
+                            oneArcHover=true, arcHoverByMouse=arc.mouseOverArc"
                 @mouseleave="arc.arcMouseHover = false,
                              oneArcHover=false,
-                             arcHoverByMouse=-1,
-                             removeInfo()"
+                             arcHoverByMouse=-1"
               />
             </g>
           </g>
@@ -59,29 +54,35 @@
 
         </g>
       </svg>
-      <div>
-        <input
-          id="getInputRange"
-          v-model="rangeInput"
-          type="range"
-          min="0"
-          max="360"
-          step="1"
-        >
-        <br>
-        <input v-model="rangeInput" type="number">
-      </div>
-    </div>
-
-    <div id="diagramInfo">
-      <div id="info">
-        <h2>Informations éléments</h2>
+      <input
+        id="getInputRange"
+        v-model="rangeInput"
+        type="range"
+        min="0"
+        max="360"
+        step="1"
+        style="width:90%;margin-left:16px;"
+      >
+    </v-col>
+    <v-spacer />
+  </v-row>
+  <v-menu v-model="dialog" width="500" style="margin-top:32px;margin-left:32px">
+    <v-card title="Informations éléments">
+      <v-card-text>
         <div v-for="info in infoList" :id="info.idInfo" :key="info.id">
           <text>{{ info.listInfo }}</text>
         </div>
-      </div>
-    </div>
-  </div>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+
+        <v-btn
+          text="Fermer"
+          @click="dialog = false"
+        />
+      </v-card-actions>
+    </v-card>
+  </v-menu>
 </template>
 
 <script setup>
@@ -89,12 +90,13 @@
 import * as d3c from 'd3-chord'
 import * as d3s from 'd3-shape'
 import { ref } from 'vue'
+import { useWindowSize } from 'vue-window-size'
 import { dataMatrix } from './AxiosRequest.vue'
 
+const { width, height } = useWindowSize()
+const size = Math.min(width.value, height.value - 30)
 // Création Matrice ===============================================================================
-const width = 900
-const height = width
-const outerRadius = Math.min(width, height) * 0.5 - 30
+const outerRadius = size * 0.4 - 30
 const innerRadius = outerRadius - 20
 const matrix = dataMatrix[0]
 const arcsNamesList = dataMatrix[1]
@@ -263,7 +265,7 @@ function addText (textsPosition) {
     if ((rotate - (textsPosition[i - 1] + 270.8)) < 2) { fontSize = '9px' }
     textList.value.push({
       id: textId++,
-      textPos: 'rotate(' + rotate + ')translate(' + (430) + ',' + (0) + ')',
+      textPos: 'rotate(' + rotate + ')translate(' + (outerRadius + 10) + ',' + (0) + ')',
       textValue: arcsNamesList[i],
       textSize: fontSize
     })
@@ -276,6 +278,7 @@ addText(textsPosition)
 const arcHoverByMouse = -1
 const oneRibbonHover = ref(false)
 const oneArcHover = ref(false)
+const dialog = ref(false)
 
 function MouseOverArcActive (arcHoverByMouse, valRibbon) {
   if (valRibbon.includes(arcHoverByMouse)) {
@@ -329,10 +332,7 @@ function displayElementsInfo (idRibbon, idArc) {
       listInfo: elementInfo[i]
     })
   }
-}
-
-function removeInfo () {
-  infoList = ref([])
+  dialog.value = true
 }
 
 // Rotation du Diagramme ==========================================================================
@@ -373,27 +373,4 @@ function changeRotation (rangeInput) {
 .activeRibbonByArc{
   fill-opacity: 0.8;
 }
-
-#diagram{
-  display: flex;
-  flex-direction: row;
-}
-#displayDiagram{
-  background-color: #fff0f0;
-  padding: 10px;
-}
-#diagramInfo{
-  background-color: #d9e2ff;
-  padding: 10px;
-  width: auto;
-}
-
-input[type="range"] {
-  width:360px;
-}
-
-#info{
-  margin-top: 300px;
-}
-
 </style>

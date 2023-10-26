@@ -37,9 +37,9 @@
     "label": "Nom actuel du région de deces"
   },
   "colors": {
-    "name": "rgb",
+    "name": "accent",
     "type": "qualitative",
-    "colorNumber": 8
+    "colorNumber": 3
   },
   "targetField": {
     "key": "nom_actuel_region_naissance",
