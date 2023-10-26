@@ -17,5 +17,12 @@ export default defineNuxtConfig({
   css: ['vuetify/styles'],
   build: {
     transpile: [/@koumoul/, /@data-fair/, /vuetify/]
+  },
+  vite: {
+    esbuild: {
+      supported: {
+        'top-level-await': true // browsers can handle top-level-await features
+      }
+    }
   }
 })
