@@ -6,36 +6,6 @@
       "id": "fichier-personnes-decedees"
     }
   ],
-  "targetField": {
-    "key": "nom_actuel_region_naissance",
-    "type": "string",
-    "title": "Nom actuel du région de naissance",
-    "x-capabilities": {
-      "text": false
-    },
-    "x-cardinality": 19,
-    "enum": [
-      "Île-de-France",
-      "Hauts-de-France",
-      "Auvergne-Rhône-Alpes",
-      "Grand Est",
-      "Nouvelle-Aquitaine",
-      "Occitanie",
-      "Bretagne",
-      "Normandie",
-      "Pays de la Loire",
-      "Bourgogne-Franche-Comté",
-      "Provence-Alpes-Côte d'Azur",
-      "Centre-Val de Loire",
-      "Corse",
-      "La Réunion",
-      "Martinique",
-      "Guadeloupe",
-      "Guyane",
-      "Mayotte"
-    ],
-    "label": "Nom actuel du région de naissance"
-  },
   "sourceField": {
     "key": "nom_actuel_region_deces",
     "type": "string",
@@ -67,7 +37,38 @@
     "label": "Nom actuel du région de deces"
   },
   "colors": {
-    "name": "mpn65",
-    "type": "qualitative"
+    "name": "rgb",
+    "type": "qualitative",
+    "colorNumber": 8
+  },
+  "targetField": {
+    "key": "nom_actuel_region_naissance",
+    "type": "string",
+    "title": "Nom actuel du région de naissance",
+    "x-capabilities": {
+      "text": false
+    },
+    "x-cardinality": 19,
+    "enum": [
+      "Île-de-France",
+      "Hauts-de-France",
+      "Auvergne-Rhône-Alpes",
+      "Grand Est",
+      "Nouvelle-Aquitaine",
+      "Occitanie",
+      "Bretagne",
+      "Normandie",
+      "Pays de la Loire",
+      "Bourgogne-Franche-Comté",
+      "Provence-Alpes-Côte d'Azur",
+      "Centre-Val de Loire",
+      "Corse",
+      "La Réunion",
+      "Martinique",
+      "Guadeloupe",
+      "Guyane",
+      "Mayotte"
+    ],
+    "label": "Nom actuel du région de naissance"
   }
 }

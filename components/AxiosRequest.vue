@@ -59,6 +59,8 @@ function changeColor (preselect, number) {
   let colorSelection = []
   if (preselect === 'rgb') {
     colorSelection = selectPalette('rainbow', 3)
+  } else if (preselect === 'cmy') {
+    colorSelection = ['#00ffff', '#ff00ff', '#ffff00']
   } else if (preselect === 'bw') {
     colorSelection = ['#000000', '#e3e3e3']
   } else if (preselect === 'rainbow') {
@@ -71,6 +73,8 @@ function changeColor (preselect, number) {
   } else if (preselect === 'accent') {
     if (number > 8) { number = 8 }
     colorSelection = selectPalette('cb-Accent', number)
+  } else if (preselect === 'sequential') {
+    colorSelection = selectPalette('tol-sq', number)
   }
   return colorSelection
 }

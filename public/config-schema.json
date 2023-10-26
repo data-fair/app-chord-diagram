@@ -52,11 +52,13 @@
             "type": "string",
             "oneOf": [
               {"const": "rgb", "title": "RGB"},
+              {"const": "cmy", "title": "CMY"},
               {"const": "bw", "title": "B&W"},
               {"const": "rainbow", "title": "Rainbow"},
               {"const": "grayscale", "title": "Grayscale"},
               {"const": "mpn65", "title": "Miscellaneous"},
-              {"const": "accent", "title": "Accent"}
+              {"const": "accent", "title": "Accent"},
+              {"const": "sequential", "title": "Sequential"}
             ],
             "default": "rgb",
             "title": "Nom de la palette de couleurs"
