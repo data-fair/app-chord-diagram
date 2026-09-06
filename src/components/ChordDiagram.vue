@@ -210,6 +210,11 @@ watch([geometry, loading], ([g, l]) => {
   if (g && !l) fireCapture()
 }, { immediate: true })
 
+// résultat vide sans erreur : la capture part quand même, sans attendre le délai du service
+watch(loading, (l) => {
+  if (!l && !geometry.value && !dataError.value) fireCapture()
+})
+
 watch(dataError, (message) => {
   if (message) fireCapture()
 })
