@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html><!-- pas de lang : posé par le proxy data-fair -->
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>@layer vuetify-core, vuetify-components, vuetify-overrides, vuetify-utilities, vuetify-final;</style>
+    <link href="/simple-directory/api/sites/_theme.css" rel="stylesheet">
+    <script src="/simple-directory/api/sites/_public.js"></script>
+
+    <title>Chord diagram</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+    <meta name="df:vjsf" content="3">
+    <meta name="df:filter-concepts" content="true">
+    <meta name="df:sync-config" content="true">
+    <meta name="df:sync-state" content="true">
+    <meta name="df:overflow" content="false">
+    <meta name="df:capture-delay" content="2">
+
+    <meta name="application-name" content="chord-diagram">
+    <meta name="description" content="Visualisation des flux entre deux champs d'un jeu de données sous forme de diagramme de cordes.">
+
+    <script>window.APPLICATION=%APPLICATION%;</script>
+  </head>
+  <body>
+    <div id="app" style="height:100vh"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
