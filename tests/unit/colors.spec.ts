@@ -100,7 +100,7 @@ test.describe('manual colors', () => {
       type: 'manual',
       colorForOthers: '#654321',
       styles: [{ value: undefined as unknown as string, color: '#123456' }]
-    }
+    } as ModeDeColoration
     const colors = getColors(colorscheme, LABELS)
     Object.values(colors).forEach(color => expect(color).toBe('#654321'))
   })
