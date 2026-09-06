@@ -1,73 +1,313 @@
 {
-    "type": "object",
-    "required": ["datasets"],
-    "properties": {
-      "datasets": {
-        "type": "array",
-        "items": [{
-          "title": "Jeu de données",
+  "$id": "chord-diagram-config",
+  "type": "object",
+  "x-exports": ["types"],
+  "required": ["datasets"],
+  "layout": "tabs",
+  "allOf": [
+    {
+      "title": "Source de données",
+      "properties": {
+        "datasets": {
+          "type": "array",
+          "items": [
+            {
+              "title": "Jeu de données",
+              "description": "Le diagramme croise les valeurs de deux champs textuels du jeu de données : un champ source et un champ cible.",
+              "type": "object",
+              "layout": {
+                "getItems": {
+                  "url": "api/v1/datasets?status=finalized&q={q}&select=id,title&${context.datasetFilter}&size=50",
+                  "itemKey": "data.href",
+                  "itemTitle": "data.title",
+                  "itemsResults": "data.results"
+                }
+              },
+              "properties": {
+                "href": { "type": "string" },
+                "title": { "type": "string" },
+                "id": { "type": "string" }
+              }
+            }
+          ]
+        },
+        "staticFilters": { "$ref": "#/definitions/filters" }
+      }
+    },
+    {
+      "title": "Préparation des données",
+      "properties": {
+        "sourceField": {
           "type": "object",
-          "x-fromUrl": "api/v1/datasets?status=finalized&field-type=integer,number&q={q}&select=id,title&owner={context.owner.type}:{context.owner.id}",
-          "x-itemsProp": "results",
-          "x-itemTitle": "title",
-          "x-itemKey": "href",
+          "title": "Colonne source",
+          "description": "Champ dont les valeurs définissent les nœuds de départ des flux.",
+          "required": ["key", "label"],
           "properties": {
-            "href": {
-              "type": "string"
-            },
-            "title": {
-              "type": "string"
-            },
-            "id": {
-              "type": "string"
+            "key": { "type": "string" },
+            "label": { "type": "string" }
+          },
+          "layout": {
+            "props": { "noDataText": "Aucune colonne textuelle disponible dans ce jeu de données." },
+            "getItems": {
+              "url": "${rootData.datasets?.[0]?.href}/schema?calculated=false&type=string",
+              "itemKey": "data.key",
+              "itemTitle": "data.label"
             }
           }
-        }]
-      },  
-      "sourceField": {
-        "type": "object",
-        "title": "Source",
-        "x-fromUrl": "{datasets.0.href}/schema?calculated=false&type=string&separator=false&maxCardinality=20",
-        "x-itemTitle": "label",
-        "x-itemKey": "key"
-      },
-      "targetField": {
-        "type": "object",
-        "title": "Cible",
-        "x-fromUrl": "{datasets.0.href}/schema?calculated=false&type=string&separator=false&maxCardinality=20",
-        "x-itemTitle": "label",
-        "x-itemKey": "key"
-      },
-
-      "colors": {
-        "title": "Couleurs",
-        "required": ["name"],
-        "properties": {
-          "type": {
-            "const": "qualitative",
-            "title": "Type de la palette de couleurs",
-            "description": "**Qualitative** : pour représenter des données catégorielles ou nominales.\n\n**Divergente** : accorde la même importance aux différentes valeurs des données.\n\n**Séquentielle** : pour des données ordonnées qui varient d’une valeur faible à une valeur forte (gradient)"
+        },
+        "targetField": {
+          "type": "object",
+          "title": "Colonne cible",
+          "description": "Champ dont les valeurs définissent les nœuds d'arrivée des flux.",
+          "required": ["key", "label"],
+          "properties": {
+            "key": { "type": "string" },
+            "label": { "type": "string" }
           },
-          "name": {
-            "type": "string",
-            "oneOf": [
-              {"const": "rgb", "title": "RGB"},
-              {"const": "cmy", "title": "CMY"},
-              {"const": "bw", "title": "B&W"},
-              {"const": "rainbow", "title": "Rainbow"},
-              {"const": "grayscale", "title": "Grayscale"},
-              {"const": "mpn65", "title": "Miscellaneous"},
-              {"const": "accent", "title": "Accent"},
-              {"const": "sequential", "title": "Sequential"}
-            ],
-            "default": "rgb",
-            "title": "Nom de la palette de couleurs"
-          },
-          "colorNumber": {
-            "type": "integer",
-            "title": "Nombre de couleurs"
+          "layout": {
+            "props": { "noDataText": "Aucune colonne textuelle disponible dans ce jeu de données." },
+            "getItems": {
+              "url": "${rootData.datasets?.[0]?.href}/schema?calculated=false&type=string",
+              "itemKey": "data.key",
+              "itemTitle": "data.label"
+            }
           }
-        }      
+        },
+        "maxNodes": {
+          "type": "integer",
+          "title": "Nombre maximal de nœuds",
+          "description": "Seuls les nœuds les plus liés sont affichés ; les suivants sont regroupés dans un nœud « Autres ». Au-delà d'une trentaine de nœuds, le diagramme devient difficile à lire.",
+          "default": 20,
+          "minimum": 5,
+          "maximum": 50,
+          "layout": "slider"
+        }
+      }
+    },
+    {
+      "title": "Présentation",
+      "properties": {
+        "nodeSort": {
+          "type": "string",
+          "title": "Ordre des nœuds",
+          "description": "Par flux décroissants : les nœuds les plus liés ouvrent le cercle. Alphabétique : ordre stable, plus lisible quand les libellés sont nombreux.",
+          "default": "total",
+          "oneOf": [
+            { "const": "total", "title": "Flux décroissants" },
+            { "const": "alpha", "title": "Alphabétique" }
+          ]
+        },
+        "colorscheme": {
+          "type": "object",
+          "title": "Mode de coloration",
+          "layout": { "title": null },
+          "oneOfLayout": { "label": "Mode de coloration" },
+          "discriminator": { "propertyName": "type" },
+          "default": { "type": "qualitative", "name": "Accent" },
+          "oneOf": [
+            {
+              "title": "Palette qualitative",
+              "required": ["name"],
+              "properties": {
+                "type": { "const": "qualitative" },
+                "name": {
+                  "type": "string",
+                  "title": "Palette de couleurs",
+                  "description": "Une couleur par nœud, attribuée automatiquement. Les palettes claires (Pastel) conviennent aux petits diagrammes, les saturées (Set 1, Dark 2) aux nœuds nombreux.",
+                  "default": "Accent",
+                  "oneOf": [
+                    { "const": "Accent", "title": "Accent — vives et contrastées" },
+                    { "const": "Dark2", "title": "Dark 2 — sombres et saturées" },
+                    { "const": "Set1", "title": "Set 1 — primaires franches" },
+                    { "const": "Set2", "title": "Set 2 — moyennes et douces" },
+                    { "const": "Set3", "title": "Set 3 — claires et variées" },
+                    { "const": "Paired", "title": "Paired — par paires clair/foncé" },
+                    { "const": "Pastel1", "title": "Pastel 1 — très claires" },
+                    { "const": "Pastel2", "title": "Pastel 2 — très claires et douces" }
+                  ]
+                },
+                "reverse": {
+                  "type": "boolean",
+                  "title": "Inverser l'ordre des couleurs",
+                  "default": false
+                }
+              }
+            },
+            {
+              "title": "Couleurs du thème",
+              "properties": {
+                "type": { "const": "theme" },
+                "colors": {
+                  "type": "array",
+                  "title": "Couleurs du thème",
+                  "description": "Les nœuds parcourent ces couleurs dans l'ordre.",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "default": ["primary", "secondary"],
+                  "items": {
+                    "type": "string",
+                    "oneOf": [
+                      { "const": "primary", "title": "Primaire" },
+                      { "const": "secondary", "title": "Secondaire" },
+                      { "const": "accent", "title": "Accent" }
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "title": "Couleurs spécifiques",
+              "required": ["type"],
+              "properties": {
+                "type": { "const": "manual" },
+                "colorForOthers": {
+                  "type": "string",
+                  "title": "Couleur par défaut",
+                  "description": "Appliquée aux nœuds sans couleur spécifique dans la liste ci-dessous.",
+                  "default": "#9E9E9E",
+                  "layout": "color-picker"
+                },
+                "styles": {
+                  "type": "array",
+                  "title": "Couleurs par valeur",
+                  "$comment": "Une entrée par valeur source, avec sa couleur. Les nœuds absents de la liste gardent la couleur par défaut.",
+                  "layout": {
+                    "if": "!!rootData.sourceField?.key",
+                    "comp": "list",
+                    "listEditMode": "inline",
+                    "itemTitle": "data.label || data.value",
+                    "getItems": {
+                      "url": "${rootData.datasets?.[0]?.href}/values-labels/${rootData.sourceField?.key}?q={q}&q_mode=complete&size=100&stringify=true",
+                      "itemsResults": "data",
+                      "itemKey": "item.value",
+                      "itemTitle": "item.label"
+                    }
+                  },
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": { "type": "string", "title": "Valeur", "layout": "none" },
+                      "color": { "type": "string", "title": "Couleur", "layout": "color-picker" }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "filters": {
+      "type": "array",
+      "title": "Filtres prédéfinis",
+      "description": "Restreignent les données prises en compte par l'application. Ils sont toujours appliqués, en plus des filtres éventuels de l'utilisateur.",
+      "layout": {
+        "comp": "list",
+        "messages": { "addItem": "Ajouter un filtre" }
+      },
+      "items": {
+        "type": "object",
+        "oneOfLayout": { "label": "Type de filtre" },
+        "discriminator": { "propertyName": "type" },
+        "default": { "type": "in" },
+        "oneOf": [
+          {
+            "title": "Restreindre à des valeurs",
+            "additionalProperties": false,
+            "properties": {
+              "type": { "const": "in" },
+              "field": { "$ref": "#/definitions/filterField" },
+              "values": {
+                "type": "array",
+                "title": "Valeurs",
+                "items": { "type": "string" },
+                "layout": {
+                  "if": "parent.data.field",
+                  "getItems": {
+                    "url": "${rootData.datasets?.[0]?.href || ''}/values-labels/${parent.data.field?.key || ''}?q={q}&q_mode=complete&size=100&stringify=true",
+                    "itemKey": "data[\"value\"]",
+                    "itemTitle": "data[\"label\"]"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "title": "Exclure des valeurs",
+            "additionalProperties": false,
+            "properties": {
+              "type": { "const": "out" },
+              "field": { "$ref": "#/definitions/filterField" },
+              "values": {
+                "type": "array",
+                "title": "Valeurs à exclure",
+                "items": { "type": "string" },
+                "layout": {
+                  "if": "parent.data.field",
+                  "getItems": {
+                    "url": "${rootData.datasets?.[0]?.href || ''}/values-labels/${parent.data.field?.key || ''}?q={q}&q_mode=complete&size=100&stringify=true",
+                    "itemKey": "data[\"value\"]",
+                    "itemTitle": "data[\"label\"]"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "title": "Restreindre à un intervalle",
+            "additionalProperties": false,
+            "properties": {
+              "type": { "const": "interval" },
+              "field": { "$ref": "#/definitions/numericFilterField" },
+              "minValue": { "type": "number", "title": "Valeur min", "layout": { "if": "parent.data.field" } },
+              "maxValue": { "type": "number", "title": "Valeur max", "layout": { "if": "parent.data.field" } }
+            }
+          },
+          {
+            "title": "Exclure les valeurs vides ou non définies",
+            "additionalProperties": false,
+            "properties": {
+              "type": { "const": "exists" },
+              "field": { "$ref": "#/definitions/filterField" }
+            }
+          },
+          {
+            "title": "Restreindre aux valeurs vides ou non définies",
+            "additionalProperties": false,
+            "properties": {
+              "type": { "const": "notExists" },
+              "field": { "$ref": "#/definitions/filterField" }
+            }
+          }
+        ]
+      }
+    },
+    "filterField": {
+      "type": "object",
+      "title": "Champ",
+      "description": "Champ du jeu de données sur lequel porte le filtre.",
+      "layout": {
+        "getItems": {
+          "url": "${rootData.datasets?.[0]?.href || ''}/schema?calculated=false",
+          "itemKey": "data[\"key\"]",
+          "itemTitle": "data[\"label\"]"
+        }
+      }
+    },
+    "numericFilterField": {
+      "type": "object",
+      "title": "Champ numérique",
+      "description": "Champ du jeu de données sur lequel porte le filtre. Il doit être de type nombre ou entier.",
+      "layout": {
+        "props": { "noDataText": "Aucune colonne numérique (nombre ou entier) disponible dans ce jeu de données." },
+        "getItems": {
+          "url": "${rootData.datasets?.[0]?.href || ''}/schema?calculated=false&type=number,integer",
+          "itemKey": "data[\"key\"]",
+          "itemTitle": "data[\"label\"]"
+        }
       }
     }
   }
+}
