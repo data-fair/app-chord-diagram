@@ -1,6 +1,6 @@
 {
   "name": "@data-fair/app-chord-diagram",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "Application data-fair : diagramme de cordes des flux entre deux champs d'un jeu de données",
   "type": "module",
   "files": [
