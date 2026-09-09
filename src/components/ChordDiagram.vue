@@ -16,7 +16,7 @@
           :aria-label="t('ariaChart')"
           class="chord-svg"
         >
-          <g :transform="`translate(${size / 2}, ${size / 2})`">
+          <g :transform="`translate(${size / 2}, ${size / 2}) rotate(${rotation})`">
             <g class="chord-ribbons">
               <path
                 v-for="(ribbonPath, i) in geometry.ribbonPaths"
@@ -278,6 +278,9 @@ en:
 .chord-controls {
   flex: none;
   padding: 0 24px;
+  /* la ripple du thumb (40px) dépasse du slider (32px) : sans ce clip elle
+     ajoute quelques pixels au scrollHeight et fait apparaître une scrollbar */
+  overflow: hidden;
 }
 .chord-loading {
   flex: none;

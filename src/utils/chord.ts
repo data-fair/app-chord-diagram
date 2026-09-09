@@ -23,7 +23,9 @@ export interface ChordGeometry {
  * et des rubans, position des libellés. Les angles d3 partent de 12h et tournent
  * dans le sens horaire ; un libellé du demi-côté droit (angle < π) sort vers
  * l'extérieur en lecture naturelle, un libellé du côté gauche est retourné pour
- * rester lisible — indépendamment de la rotation appliquée au diagramme.
+ * rester lisible. La rotation est appliquée par l'appelant au groupe SVG parent
+ * (arcs, rubans et libellés tournent ensemble) ; `rotationDeg` ne sert ici qu'à
+ * décider du retournement des libellés une fois la rotation effective appliquée.
  */
 export function buildChordGeometry (labels: string[], matrix: number[][], radius: number, rotationDeg = 0): ChordGeometry {
   const outerRadius = radius * 0.42
@@ -51,7 +53,7 @@ export function buildChordGeometry (labels: string[], matrix: number[][], radius
     // angle effectif après rotation, normalisé dans [0, 2π)
     const effective = (((middle + rotationRad) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)
     const flip = effective >= Math.PI
-    const degrees = (middle * 180) / Math.PI - 90 + rotationDeg
+    const degrees = (middle * 180) / Math.PI - 90
     return {
       label: labels[group.index] ?? labels[i],
       transform: `rotate(${degrees}) translate(${outerRadius + 8},0)${flip ? ' rotate(180)' : ''}`,
