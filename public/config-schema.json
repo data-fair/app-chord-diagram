@@ -260,9 +260,44 @@
             "additionalProperties": false,
             "properties": {
               "type": { "const": "interval" },
-              "field": { "$ref": "#/definitions/numericFilterField" },
-              "minValue": { "type": "number", "title": "Valeur min", "layout": { "if": "parent.data.field" } },
-              "maxValue": { "type": "number", "title": "Valeur max", "layout": { "if": "parent.data.field" } }
+              "field": { "$ref": "#/definitions/filterField" },
+              "minValue": {
+                "type": "string",
+                "title": "Valeur min",
+                "layout": {
+                  "if": "parent.data.field",
+                  "getItems": {
+                    "url": "${rootData.datasets?.[0]?.href || ''}/values-labels/${parent.data.field?.key || ''}?sort=asc&${parent.data.field?.key || ''}_gte={q}&stringify=true&size=20",
+                    "itemKey": "data[\"value\"]",
+                    "itemTitle": "data[\"label\"]"
+                  }
+                }
+              },
+              "maxValue": {
+                "type": "string",
+                "title": "Valeur max",
+                "layout": {
+                  "if": "parent.data.field",
+                  "getItems": {
+                    "url": "${rootData.datasets?.[0]?.href || ''}/values-labels/${parent.data.field?.key || ''}?sort=desc&${parent.data.field?.key || ''}_lte={q}&stringify=true&size=20",
+                    "itemKey": "data[\"value\"]",
+                    "itemTitle": "data[\"label\"]"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "title": "Commence par",
+            "additionalProperties": false,
+            "properties": {
+              "type": { "const": "starts" },
+              "field": { "$ref": "#/definitions/filterField" },
+              "value": {
+                "type": "string",
+                "title": "Valeur",
+                "layout": { "if": "parent.data.field" }
+              }
             }
           },
           {
@@ -291,19 +326,6 @@
       "layout": {
         "getItems": {
           "url": "${rootData.datasets?.[0]?.href || ''}/schema?calculated=false",
-          "itemKey": "data[\"key\"]",
-          "itemTitle": "data[\"label\"]"
-        }
-      }
-    },
-    "numericFilterField": {
-      "type": "object",
-      "title": "Champ numérique",
-      "description": "Champ du jeu de données sur lequel porte le filtre. Il doit être de type nombre ou entier.",
-      "layout": {
-        "props": { "noDataText": "Aucune colonne numérique (nombre ou entier) disponible dans ce jeu de données." },
-        "getItems": {
-          "url": "${rootData.datasets?.[0]?.href || ''}/schema?calculated=false&type=number,integer",
           "itemKey": "data[\"key\"]",
           "itemTitle": "data[\"label\"]"
         }
