@@ -170,7 +170,7 @@
                 "styles": {
                   "type": "array",
                   "title": "Couleurs par valeur",
-                  "$comment": "Une entrée par valeur source, avec sa couleur. Les nœuds absents de la liste gardent la couleur par défaut.",
+                  "description": "Une entrée par valeur source, avec sa couleur. Les nœuds absents de la liste gardent la couleur par défaut.",
                   "layout": {
                     "if": "!!rootData.sourceField?.key",
                     "comp": "list",
