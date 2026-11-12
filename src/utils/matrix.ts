@@ -5,8 +5,8 @@ export interface AggBucket {
   aggs?: AggBucket[]
 }
 
-// forme de la réponse de /values_agg?field=source;target : un bucket par valeur
-// source, chacun embarquant un bucket par valeur cible avec le total agrégé
+// shape of the /values_agg?field=source;target response: one bucket per source
+// value, each embedding one bucket per target value with the aggregated total
 export interface ValuesAggResponse {
   total_values?: number
   aggs?: AggBucket[]
@@ -20,13 +20,13 @@ export interface ChordMatrix {
 export const OTHERS_LABEL = 'Autres'
 
 /**
- * Construit la matrice carrée des flux à partir de la réponse values_agg.
- * - Les nœuds sont l'union des valeurs source ET cible (une valeur qui n'apparaît
- *   qu'en cible doit avoir son arc, faute de quoi ses rubans n'ont pas d'extrémité).
- * - Les valeurs vides sont renommées « Autre ».
- * - Au-delà de maxNodes, les nœuds les moins liés sont regroupés dans « Autres ».
- * - nodeSort : 'alpha' ordre alphabétique, 'total' (défaut) poids décroissant ;
- *   « Autres » reste toujours en dernière position.
+ * Builds the square flow matrix from the values_agg response.
+ * - Nodes are the union of source AND target values (a value that only appears
+ *   as target must have its arc, otherwise its ribbons have no end).
+ * - Empty values are renamed « Autre ».
+ * - Beyond maxNodes, the least connected nodes are grouped into « Autres ».
+ * - nodeSort: 'alpha' alphabetical order, 'total' (default) decreasing weight;
+ *   « Autres » always stays last.
  */
 export function buildChordMatrix (response: ValuesAggResponse, options: { maxNodes?: number, nodeSort?: string } = {}): ChordMatrix {
   const nodes: string[] = []
@@ -57,7 +57,7 @@ export function buildChordMatrix (response: ValuesAggResponse, options: { maxNod
 
   if (!nodes.length) return { labels: [], matrix: [] }
 
-  // poids d'un nœud = flux sortants + flux entrants (la diagonale ne compte qu'une fois)
+  // node weight = outgoing flows + incoming flows (the diagonal counts only once)
   const weights = new Map<string, number>()
   for (const node of nodes) {
     let weight = 0
@@ -95,8 +95,8 @@ export function buildChordMatrix (response: ValuesAggResponse, options: { maxNod
 }
 
 /**
- * Réordonne nœuds et matrice : 'alpha' alphabétique, 'total' (défaut) poids
- * décroissant avec départage alphabétique. « Autres » reste en dernier.
+ * Reorders nodes and matrix: 'alpha' alphabetical, 'total' (default) decreasing
+ * weight with alphabetical tie-break. « Autres » stays last.
  */
 export function sortMatrix (chordMatrix: ChordMatrix, nodeSort?: string): ChordMatrix {
   const { labels, matrix } = chordMatrix

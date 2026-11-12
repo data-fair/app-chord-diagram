@@ -1,4 +1,5 @@
-import { test, expect, type Locator } from '@playwright/test'
+import type { Locator } from '@playwright/test'
+import { test, expect } from '@playwright/test'
 import { baseConfig, buildApplication, setupMocks } from './fixtures'
 
 async function boundingBox (locator: Locator) {
@@ -17,8 +18,8 @@ test('renders arcs, ribbons and labels for a valid configuration', async ({ page
   const svg = page.locator('svg.chord-svg')
   await expect(svg).toBeVisible()
 
-  // contrôle positif : TEST_AGGS compte 3 nœuds ; d3-chord fusionne les flux
-  // réciproques IDF↔AURA en un ruban unique → 3 rubans
+  // positive check: TEST_AGGS has 3 nodes; d3-chord merges the reciprocal
+  // IDF↔AURA flows into a single ribbon → 3 ribbons
   // (IDF ↔ AURA, IDF → Bretagne, Bretagne → Bretagne)
   await expect(svg.locator('.chord-arcs path')).toHaveCount(3)
   await expect(svg.locator('.chord-ribbons path')).toHaveCount(3)
@@ -34,8 +35,8 @@ test('rotates the whole diagram, not only the labels', async ({ page }) => {
   const svg = page.locator('svg.chord-svg')
   await expect(svg).toBeVisible()
 
-  // la rotation est portée par le groupe parent : arcs, rubans et libellés
-  // tournent ensemble (le bug ne tournait que les transforms des textes)
+  // the rotation is carried by the parent group: arcs, ribbons and labels
+  // rotate together (the bug only rotated the text transforms)
   const root = svg.locator('> g')
   const firstArc = svg.locator('.chord-arcs path').first()
   const before = await boundingBox(firstArc)
@@ -44,7 +45,7 @@ test('rotates the whole diagram, not only the labels', async ({ page }) => {
   await page.keyboard.press('ArrowRight')
 
   await expect(root).toHaveAttribute('transform', /rotate\(1\)/)
-  // la position rendue de l'arc change : le path est bien dans le groupe tourné
+  // the rendered position of the arc changes: the path is indeed in the rotated group
   const after = await boundingBox(firstArc)
   expect(after.x).not.toBeCloseTo(before.x, 3)
 })
@@ -53,8 +54,8 @@ test('fits the viewport without a scrollbar', async ({ page }) => {
   await page.goto('/app/', { waitUntil: 'domcontentloaded' })
   await expect(page.locator('svg.chord-svg')).toBeVisible()
 
-  // la ripple du thumb du slider débordait sous le viewport de quelques pixels
-  // et faisait apparaître une scrollbar verticale (df:overflow = false)
+  // the slider thumb ripple overflowed below the viewport by a few pixels
+  // and made a vertical scrollbar appear (df:overflow = false)
   const metrics = await page.evaluate(() => {
     const el = document.documentElement
     return {
@@ -73,13 +74,13 @@ test('hovering an arc dims the ribbons it is not connected to', async ({ page })
   const svg = page.locator('svg.chord-svg')
   await expect(svg).toBeVisible()
 
-  // sans survol : aucun ruban estompé (contrôle positif de l'assertion négative)
+  // without hover: no dimmed ribbon (positive check of the negative assertion)
   await expect(svg.locator('.chord-ribbons path.is-dim')).toHaveCount(0)
 
-  // dispatchEvent plutôt que hover() : le centre de la boîte englobante d'un
-  // arc tombé au milieu du cercle ne toucherait pas le path lui-même
+  // dispatchEvent rather than hover(): the center of the bounding box of an
+  // arc falling in the middle of the circle would not hit the path itself
   await svg.locator('.chord-arcs path').first().dispatchEvent('mouseenter')
-  // au moins un ruban relié s'allume et les autres s'estompent
+  // at least one connected ribbon lights up and the others dim
   await expect(svg.locator('.chord-ribbons path.is-dim')).not.toHaveCount(0)
   await expect(svg.locator('.chord-ribbons path.is-active')).not.toHaveCount(0)
 })
@@ -89,8 +90,8 @@ test('clicking a ribbon opens the flow details dialog', async ({ page }) => {
   const svg = page.locator('svg.chord-svg')
   await expect(svg).toBeVisible()
 
-  // le ruban IDF → AURA porte 12 : le dialogue affiche les deux sens du flux
-  // (dispatchEvent : le centre du bbox d'un ruban peut tomber hors de sa forme)
+  // the IDF → AURA ribbon carries 12: the dialog shows both directions of the flow
+  // (dispatchEvent: the center of a ribbon's bbox may fall outside its shape)
   await svg.locator('.chord-ribbons path').first().dispatchEvent('click')
   const dialog = page.locator('.v-dialog')
   await expect(dialog).toBeVisible()
@@ -109,13 +110,13 @@ test('clicking an arc opens the per-node flows dialog', async ({ page }) => {
   await svg.locator('.chord-arcs path').first().dispatchEvent('click')
   const dialog = page.locator('.v-dialog')
   await expect(dialog).toBeVisible()
-  // détail du nœud : total puis flux sortants triés
+  // node details: total then sorted outgoing flows
   await expect(dialog.getByText(/Total/)).toBeVisible()
   await expect(dialog.getByText('Île-de-France → Auvergne-Rhône-Alpes')).toBeVisible()
 })
 
 test('shows the incomplete-configuration empty state on a bad config', async ({ page }) => {
-  // contrôle négatif apparié au test de rendu positif ci-dessus
+  // negative check paired with the positive render test above
   await setupMocks(page, { application: buildApplication({ datasets: [{}] }) })
   await page.goto('/app/', { waitUntil: 'domcontentloaded' })
 
@@ -176,9 +177,9 @@ test('applies the theme color mode from the config', async ({ page }) => {
   const svg = page.locator('svg.chord-svg')
   await expect(svg).toBeVisible()
 
-  // le thème de test définit primary #1e88e5 : les arcs ne portent aucune
-  // couleur de la palette Accent (interpolation chroma), donc au moins deux
-  // couleurs d'arc identiques (cycle primaire/secondaire sur 3 nœuds)
+  // the test theme defines primary #1e88e5: the arcs carry no color
+  // from the Accent palette (chroma interpolation), hence at least two
+  // identical arc colors (primary/secondary cycle over 3 nodes)
   const fills = await svg.locator('.chord-arcs path').evaluateAll(
     nodes => nodes.map(node => node.getAttribute('fill'))
   )

@@ -45,7 +45,7 @@ export const TEST_DATASET = {
   ]
 }
 
-// Reflète le schéma VJSF 3 (public/config-schema.json) : datasets, sourceField,
+// Mirrors the VJSF 3 schema (public/config-schema.json): datasets, sourceField,
 // targetField, maxNodes, nodeSort, colorscheme, staticFilters.
 export function baseConfig (overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
@@ -60,8 +60,8 @@ export function baseConfig (overrides: Record<string, unknown> = {}): Record<str
   }
 }
 
-// Format de /values_agg?field=source;target : un bucket par valeur source,
-// chacun embarquant un bucket par valeur cible avec le total agrégé.
+// Format of /values_agg?field=source;target: one bucket per source value,
+// each embedding one bucket per target value with the aggregated total.
 // IDF → AURA (12), IDF → Bretagne (7), AURA → IDF (5), Bretagne → Bretagne (3)
 export const TEST_AGGS = {
   total_values: 3,
@@ -96,8 +96,8 @@ export async function setupMocks (page: Page, options: SetupOptions): Promise<vo
   await page.route('**/simple-directory/**', (route) => {
     const url = route.request().url()
     if (url.endsWith('.js')) {
-      // _public.js est un script classique, pas du JSON : le servir ainsi permet
-      // à la session de lire window.__PUBLIC_SITE_INFO au lieu du fetch déprécié
+      // _public.js is a classic script, not JSON: serving it this way lets
+      // the session read window.__PUBLIC_SITE_INFO instead of the deprecated fetch
       route.fulfill({
         status: 200,
         contentType: 'application/javascript',
@@ -119,11 +119,11 @@ export async function setupMocks (page: Page, options: SetupOptions): Promise<vo
     })
   })
   // index.html contient `<script>window.APPLICATION=%APPLICATION%;</script>`.
-  // En dev le placeholder n'est pas substitué : ce script inline lève une
-  // SyntaxError que le parser ignore, et l'app démarre quand même à condition
-  // que window.APPLICATION soit déjà défini — d'où addInitScript, exécuté
-  // avant tout script de page. `writable: false` verrouille ensuite la
-  // propriété contre l'assignation (échouée) du script inline.
+  // In dev the placeholder is not substituted: this inline script throws a
+  // SyntaxError that the parser ignores, and the app still starts provided
+  // window.APPLICATION is already defined — hence addInitScript, run
+  // before any page script. `writable: false` then locks the
+  // property against the (failed) assignment of the inline script.
   await page.addInitScript((app) => {
     Object.defineProperty(window, 'APPLICATION', {
       configurable: true, enumerable: true, writable: false, value: app

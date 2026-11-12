@@ -1,10 +1,11 @@
+import type { ValuesAggResponse } from '@/utils/matrix'
 import { test, expect } from '@playwright/test'
-import { buildChordMatrix, sortMatrix, OTHERS_LABEL, type ValuesAggResponse } from '@/utils/matrix'
+import { buildChordMatrix, sortMatrix, OTHERS_LABEL } from '@/utils/matrix'
 
 // IDF → AURA (12), IDF → Bretagne (7), AURA → IDF (5),
 // Bretagne → Bretagne (3), Bretagne → Normandie (2)
-// Normandie n'apparaît qu'en valeur cible : c'est précisément le cas que
-// l'ancienne implémentation perdait en ne lisant que les buckets source.
+// Normandie only appears as a target value: this is precisely the case that
+// the former implementation lost by reading only the source buckets.
 const response: ValuesAggResponse = {
   total_values: 4,
   aggs: [
@@ -35,7 +36,7 @@ const response: ValuesAggResponse = {
 test.describe('buildChordMatrix', () => {
   test('builds a square matrix over the union of source and target values', () => {
     const { labels, matrix } = buildChordMatrix(response)
-    // Normandie n'est jamais source : elle doit quand même avoir son nœud
+    // Normandie is never a source: it must still have its node
     expect(labels).toHaveLength(4)
     expect(matrix).toHaveLength(4)
     matrix.forEach(row => expect(row).toHaveLength(4))
@@ -80,8 +81,8 @@ test.describe('buildChordMatrix', () => {
 
   test('groups the least connected nodes into « Autres » beyond maxNodes', () => {
     const { labels, matrix } = buildChordMatrix(response, { maxNodes: 3 })
-    // poids : IDF 24, AURA 17, Bretagne 15, Normandie 2
-    // → on garde IDF et AURA, « Autres » agrège Bretagne et Normandie
+    // weights: IDF 24, AURA 17, Bretagne 15, Normandie 2
+    // → keep IDF and AURA, « Autres » aggregates Bretagne and Normandie
     expect(labels).toHaveLength(3)
     expect(labels[2]).toBe(OTHERS_LABEL)
     const idf = labels.indexOf('Île-de-France')
@@ -89,7 +90,7 @@ test.describe('buildChordMatrix', () => {
     expect(matrix[idf][aura]).toBe(12)
     expect(matrix[idf][2]).toBe(7)
     expect(matrix[aura][idf]).toBe(5)
-    // les flux internes des nœuds regroupés rejoignent la diagonale de « Autres »
+    // internal flows of the grouped nodes join the diagonal of « Autres »
     expect(matrix[2][2]).toBe(5)
   })
 
@@ -106,7 +107,7 @@ test.describe('buildChordMatrix', () => {
 
   test('sorts by decreasing weight by default and alphabetically on demand', () => {
     const defaultSorted = buildChordMatrix(response)
-    // IDF (24) puis AURA (17) puis Bretagne (15) puis Normandie (2)
+    // IDF (24) then AURA (17) then Bretagne (15) then Normandie (2)
     expect(defaultSorted.labels).toEqual([
       'Île-de-France',
       'Auvergne-Rhône-Alpes',

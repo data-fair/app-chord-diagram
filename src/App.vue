@@ -33,7 +33,7 @@ const errorText = computed(() => {
 
 const ChordDiagram = defineAsyncComponent(() => import('@/components/ChordDiagram.vue'))
 
-// capture immédiate même sur une config invalide : le service attend triggerCapture
+// immediate capture even on an invalid config: the service waits for triggerCapture
 watch(error, async (message) => {
   if (message) {
     await nextTick()

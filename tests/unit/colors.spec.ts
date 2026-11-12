@@ -1,6 +1,7 @@
-import { test, expect } from '@playwright/test'
-import getColors, { type ThemeColors } from '@/utils/colors'
+import type { ThemeColors } from '@/utils/colors'
 import type { ModeDeColoration } from '@/config'
+import { test, expect } from '@playwright/test'
+import getColors from '@/utils/colors'
 
 const LABELS = ['Île-de-France', 'Auvergne-Rhône-Alpes', 'Bretagne', 'Normandie']
 const HEX = /^#[0-9a-f]{6}$/i

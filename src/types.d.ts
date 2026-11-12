@@ -7,11 +7,11 @@ import type { ChordDiagramConfig } from './config/index.js'
 declare global {
   interface Window {
     APPLICATION: Application & { href: string }
-    // expose reactiveSearchParams au shim v-iframe-compat injecté par DataFair
+    // exposes reactiveSearchParams to the v-iframe-compat shim injected by DataFair
     vIframeOptions?: { reactiveParams: Record<string, string> }
-    // posé par _public.js, lu par la session à la place du fetch déprécié
+    // set by _public.js, read by the session instead of the deprecated fetch
     __PUBLIC_SITE_INFO?: FullSiteInfo
-    // exposée par puppeteer dans le service de capture : résout vers un booléen (mode gif)
+    // exposed by puppeteer in the capture service: resolves to a boolean (gif mode)
     triggerCapture?: (animationSupported?: boolean) => Promise<boolean>
     animateCaptureFrame?: () => boolean | undefined
   }

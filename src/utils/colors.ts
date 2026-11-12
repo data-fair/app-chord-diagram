@@ -1,19 +1,19 @@
-import chroma from 'chroma-js'
 import type { ModeDeColoration } from '@/config'
+import chroma from 'chroma-js'
 
 export type ThemeColorName = 'primary' | 'secondary' | 'accent'
 export type ThemeColors = Partial<Record<ThemeColorName, string>>
 
-// le schéma propose primaire/secondaire/accent : jamais primary seul (contrat
-// minimal d'un portail), les trois couleurs parcourent les nœuds
+// the schema offers primary/secondary/accent: never primary alone (minimal
+// contract of a portal), the three colors cycle through the nodes
 const DEFAULT_THEME_NAMES: ThemeColorName[] = ['primary', 'secondary', 'accent']
 const FALLBACK_COLOR = '#9E9E9E'
 
 /**
- * Couleur de chaque nœud selon le mode de coloration configuré :
- * - palette qualitative : interpolation chroma d'une palette ColorBrewer ;
- * - couleurs du thème : cycle des couleurs sélectionnées (primaire, secondaire, accent) ;
- * - manuel : couleur par valeur, avec repli colorForOthers puis couleur primaire.
+ * Color of each node according to the configured coloring mode:
+ * - qualitative palette: chroma interpolation of a ColorBrewer palette;
+ * - theme colors: cycle of the selected colors (primary, secondary, accent);
+ * - manual: color per value, falling back to colorForOthers then the primary color.
  */
 export default function getColors (colorscheme: ModeDeColoration | undefined, labels: string[], themeColors: ThemeColors = {}): Record<string, string> {
   const colors: Record<string, string> = {}
@@ -41,7 +41,7 @@ export default function getColors (colorscheme: ModeDeColoration | undefined, la
     return colors
   }
 
-  // palettes ColorBrewer de chroma : lookup par nom avec repli sur Accent
+  // chroma ColorBrewer palettes: lookup by name with fallback to Accent
   const brewer = chroma.brewer as unknown as Record<string, string[]>
   let scale: string[]
   try {

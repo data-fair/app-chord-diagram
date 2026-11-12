@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
-// global.scss REMPLACE 'vuetify/styles' — jamais les deux. Il compile Vuetify avec
-// $body-font-family: var(--d-body-font-family), variable posée par _theme.css.
+// global.scss REPLACES 'vuetify/styles' — never both. It compiles Vuetify with
+// $body-font-family: var(--d-body-font-family), a variable set by _theme.css.
 import '@data-fair/lib-vuetify/style/global.scss'
 import { createVuetify } from 'vuetify'
 import { createI18n } from 'vue-i18n'
@@ -12,14 +12,14 @@ import { createConfig } from './composables/config'
 import App from './App.vue'
 import { aliases, mdi } from 'vuetify/iconsets/mdi-svg'
 
-// Expose reactiveSearchParams au shim v-iframe-compat injecté par DataFair :
-// évite le rechargement complet quand l'app est elle-même embedded dans un
-// d-frame parent (portail, dashboard). À poser au niveau module, AVANT createApp().
+// Expose reactiveSearchParams to the v-iframe-compat shim injected by DataFair:
+// avoids a full reload when the app is itself embedded in a parent
+// d-frame (portal, dashboard). Must be set at module level, BEFORE createApp().
 ;(window as unknown as { vIframeOptions: object }).vIframeOptions = { reactiveParams: reactiveSearchParams }
 
 async function init () {
-  // le <script> _public.js d'index.html pose window.__PUBLIC_SITE_INFO, lu sans
-  // fetch ; siteInfo déclenche refreshSiteInfo (déprécié) et ne reste qu'en repli
+  // the _public.js <script> of index.html sets window.__PUBLIC_SITE_INFO, read without
+  // fetch; siteInfo triggers refreshSiteInfo (deprecated) and is only a fallback
   const session = await createSession({
     directoryUrl: '/simple-directory',
     siteInfo: !window.__PUBLIC_SITE_INFO

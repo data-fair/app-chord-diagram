@@ -1,12 +1,14 @@
+import type { Filter } from '@data-fair/lib-utils/filters/index.js'
+import type { ChordMatrix } from '@/utils/matrix'
+import type { ValuesAggResponse } from '@/utils/matrix'
 import { computed, watch } from 'vue'
 import { useFetch } from '@data-fair/lib-vue/fetch.js'
 import { getErrorMsg, useUiNotif } from '@data-fair/lib-vue/ui-notif.js'
 import { useConceptFilters } from '@data-fair/lib-vue/concept-filters.js'
-import { filters2params, type Filter } from '@data-fair/lib-utils/filters/index.js'
+import { filters2params } from '@data-fair/lib-utils/filters/index.js'
 import reactiveSearchParams from '@data-fair/lib-vue/reactive-search-params-global.js'
 import { useConfig } from './config'
-import { buildChordMatrix, type ChordMatrix } from '@/utils/matrix'
-import type { ValuesAggResponse } from '@/utils/matrix'
+import { buildChordMatrix } from '@/utils/matrix'
 
 export function useChordData () {
   const { config, dataset, datasetUrl, finalizedAt } = useConfig()
@@ -25,7 +27,7 @@ export function useChordData () {
     return sf.length ? filters2params(sf) : {}
   }
 
-  // url nulle tant que la config est incomplète : useFetch reste inactif
+  // null url as long as the config is incomplete: useFetch stays inactive
   const url = computed(() =>
     (datasetUrl.value && sourceKey.value && targetKey.value)
       ? `${datasetUrl.value}/values_agg`
@@ -33,7 +35,7 @@ export function useChordData () {
 
   const query = computed(() => ({
     field: `${sourceKey.value};${targetKey.value}`,
-    // deux niveaux de buckets (source puis cible), bornés au nombre de nœuds
+    // two levels of buckets (source then target), capped at the number of nodes
     agg_size: `${config.value.maxNodes ?? 20};${config.value.maxNodes ?? 20}`,
     finalizedAt: finalizedAt.value,
     ...staticFilterParams(),
@@ -42,8 +44,8 @@ export function useChordData () {
 
   const { data, loading, error } = useFetch<ValuesAggResponse>(url, { query, notifError: false })
 
-  // convention du parc (cf. app-charts) : le détail d'un échec part en notification
-  // globale, la zone de visualisation affiche seulement qu'il n'y a rien à dessiner
+  // fleet convention (see app-charts): the details of a failure go to a global
+  // notification, the visualization area only shows that there is nothing to draw
   watch(error, (e) => {
     if (e) sendUiNotif({ type: 'error', msg: getErrorMsg(e) })
   })

@@ -1,6 +1,6 @@
+import type { Chord, ChordGroup, Ribbon } from 'd3-chord'
 import { chord, ribbon } from 'd3-chord'
 import { arc } from 'd3-shape'
-import type { Chord, ChordGroup, Ribbon } from 'd3-chord'
 
 export interface ChordLabel {
   label: string
@@ -19,18 +19,18 @@ export interface ChordGeometry {
 }
 
 /**
- * Géométrie complète du diagramme : layout d3-chord de la matrice, paths des arcs
- * et des rubans, position des libellés. Les angles d3 partent de 12h et tournent
- * dans le sens horaire ; un libellé du demi-côté droit (angle < π) sort vers
- * l'extérieur en lecture naturelle, un libellé du côté gauche est retourné pour
- * rester lisible. La rotation est appliquée par l'appelant au groupe SVG parent
- * (arcs, rubans et libellés tournent ensemble) ; `rotationDeg` ne sert ici qu'à
- * décider du retournement des libellés une fois la rotation effective appliquée.
+ * Full geometry of the diagram: d3-chord layout of the matrix, paths of the arcs
+ * and ribbons, label positions. d3 angles start at 12 o'clock and go
+ * clockwise; a label on the right half (angle < π) points
+ * outwards in natural reading, a label on the left side is flipped to
+ * stay readable. The rotation is applied by the caller to the parent SVG group
+ * (arcs, ribbons and labels rotate together); `rotationDeg` is only used here to
+ * decide whether to flip labels once the actual rotation is applied.
  */
 export function buildChordGeometry (labels: string[], matrix: number[][], radius: number, rotationDeg = 0): ChordGeometry {
   const outerRadius = radius * 0.42
   const innerRadius = outerRadius - Math.max(10, radius * 0.02)
-  // l'écart entre arcs s'amincit quand les nœuds sont nombreux
+  // the gap between arcs narrows when there are many nodes
   const padAngle = Math.min(0.025, Math.PI / (4 * matrix.length))
   const layout = chord().padAngle(padAngle)(matrix)
   const arcGenerator = arc()
@@ -43,14 +43,14 @@ export function buildChordGeometry (labels: string[], matrix: number[][], radius
     endAngle: group.endAngle
   }) ?? '')
 
-  // le ruban lit radius via son accesseur (posé plus haut) : le type strict de
-  // d3-shape exige radius sur le sous-groupe, que d3-chord ne porte pas
+  // the ribbon reads radius through its accessor (set above): the strict type of
+  // d3-shape requires radius on the subgroup, which d3-chord does not carry
   const ribbonPaths = layout.map(c => ribbonGenerator(c as unknown as Ribbon) ?? '')
 
   const rotationRad = (rotationDeg * Math.PI) / 180
   const textLabels: ChordLabel[] = layout.groups.map((group, i) => {
     const middle = (group.startAngle + group.endAngle) / 2
-    // angle effectif après rotation, normalisé dans [0, 2π)
+    // actual angle after rotation, normalized in [0, 2π)
     const effective = (((middle + rotationRad) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)
     const flip = effective >= Math.PI
     const degrees = (middle * 180) / Math.PI - 90

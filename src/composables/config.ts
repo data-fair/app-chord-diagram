@@ -1,5 +1,6 @@
 import type { Application, Dataset, Field, AnyConfig } from '@/types'
-import { inject, computed, ref, type App, type Ref } from 'vue'
+import type { App, Ref } from 'vue'
+import { inject, computed, ref } from 'vue'
 
 export interface ConfigState {
   application: Application
@@ -17,7 +18,7 @@ export function createConfig () {
   const application = window.APPLICATION
   const config = ref<AnyConfig>((application?.configuration || {}) as AnyConfig)
 
-  // Visu mono-dataset : le premier jeu de données configuré
+  // Single-dataset visualization: the first configured dataset
   const dataset = computed(() => config.value?.datasets?.[0] as Dataset | undefined)
 
   const fields = computed(() => {
@@ -31,7 +32,7 @@ export function createConfig () {
   const datasetUrl = computed(() => dataset.value?.href)
   const finalizedAt = computed(() => dataset.value?.finalizedAt)
 
-  // clés i18n : App.vue les traduit si elles existent, sinon affiche la valeur brute
+  // i18n keys: App.vue translates them if they exist, otherwise shows the raw value
   const error = computed(() => {
     const c = config.value
     if (!c) return 'noConfig'
@@ -87,14 +88,14 @@ export function createConfig () {
       })
 
       let allowedOrigin: string | null = null
-      try { allowedOrigin = new URL(window.APPLICATION?.href).origin } catch { /* pas de href exploitable */ }
+      try { allowedOrigin = new URL(window.APPLICATION?.href).origin } catch { /* no usable href */ }
 
       window.addEventListener('message', (event) => {
         if (allowedOrigin && event.origin !== allowedOrigin) return
         if (event.data?.type === 'set-config' && event.data?.content) {
           const { content } = event.data
-          // UI → app : la config complète directement dans content ;
-          // app → UI : { field, value } (update par path)
+          // UI → app: the full config directly in content;
+          // app → UI: { field, value } (update by path)
           if (content.configuration) {
             config.value = content.configuration
           } else if (content.datasets) {

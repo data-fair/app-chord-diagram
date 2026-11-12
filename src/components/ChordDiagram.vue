@@ -105,6 +105,7 @@
 </template>
 
 <script setup lang="ts">
+import type { ThemeColors } from '@/utils/colors'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useTheme } from 'vuetify'
@@ -112,20 +113,20 @@ import { useWindowSize } from '@vueuse/core'
 import { mdiChartDonut } from '@mdi/js'
 import { useConfig } from '@/composables/config'
 import { useChordData } from '@/composables/useChordData'
-import getColors, { type ThemeColors } from '@/utils/colors'
+import getColors from '@/utils/colors'
 import { buildChordGeometry } from '@/utils/chord'
 
 const { t, n } = useI18n()
 const { config } = useConfig()
 const { chordMatrix, loading, dataError } = useChordData()
 
-// couleurs du thème courant : suivent le mode (clair/sombre) et le site
+// colors of the current theme: follow the mode (light/dark) and the site
 const theme = useTheme()
 const sessionColors = computed(() => theme.current.value.colors as unknown as ThemeColors)
 const colors = computed(() => getColors(config.value.colorscheme, chordMatrix.value.labels, sessionColors.value))
 
 const { width, height } = useWindowSize()
-// la marge basse réserve le slider de rotation
+// the bottom margin reserves room for the rotation slider
 const size = computed(() => Math.max(280, Math.min(width.value, height.value - 88)))
 const labelFontSize = computed(() => Math.max(9, Math.min(13, Math.floor(size.value / 38))))
 
@@ -135,7 +136,7 @@ const geometry = computed(() => {
   return buildChordGeometry(chordMatrix.value.labels, chordMatrix.value.matrix, size.value, rotation.value)
 })
 
-// ── survol : ruban actif, ou arc actif (les rubans reliés s'allument, les autres s'estompent)
+// ── hover: active ribbon, or active arc (connected ribbons light up, the others dim)
 const hover = ref<{ type: 'ribbon' | 'arc', index: number } | null>(null)
 
 function ribbonClasses (i: number) {
@@ -165,7 +166,7 @@ function arcColor (i: number) {
   return colors.value[chordMatrix.value.labels[i]] ?? '#9E9E9E'
 }
 
-// ── détails des éléments au clic
+// ── element details on click
 const dialog = ref(false)
 const dialogTitle = ref('')
 const dialogLines = ref<string[]>([])
@@ -195,8 +196,8 @@ function showRibbonInfo (i: number) {
   dialog.value = true
 }
 
-// ── capture : triggerCapture fiable, y compris sur résultat vide ou erreur
-// (une app qui ne déclenche jamais fait attendre au service son timeout complet)
+// ── capture: reliable triggerCapture, including on empty result or error
+// (an app that never triggers makes the service wait for its full timeout)
 const readyFired = ref(false)
 
 async function fireCapture () {
@@ -210,7 +211,7 @@ watch([geometry, loading], ([g, l]) => {
   if (g && !l) fireCapture()
 }, { immediate: true })
 
-// résultat vide sans erreur : la capture part quand même, sans attendre le délai du service
+// empty result without error: the capture still fires, without waiting for the service delay
 watch(loading, (l) => {
   if (!l && !geometry.value && !dataError.value) fireCapture()
 })
@@ -278,8 +279,8 @@ en:
 .chord-controls {
   flex: none;
   padding: 0 24px;
-  /* la ripple du thumb (40px) dépasse du slider (32px) : sans ce clip elle
-     ajoute quelques pixels au scrollHeight et fait apparaître une scrollbar */
+  /* the thumb ripple (40px) overflows the slider (32px): without this clip it
+     adds a few pixels to scrollHeight and makes a scrollbar appear */
   overflow: hidden;
 }
 .chord-loading {
